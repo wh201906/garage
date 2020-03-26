@@ -1,3 +1,3 @@
 # hdoj
-http://acm.hdu.edu.cn/
+http://acm.hdu.edu.cn/  
 Some useless codes.
