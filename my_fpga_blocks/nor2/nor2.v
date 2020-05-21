@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020/05/19 23:45:28
+// Create Date: 2020/05/21 19:40:45
 // Design Name: 
-// Module Name: or2
+// Module Name: nor2
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module or2(
+module nor2(
     input a,
     input b,
     output y

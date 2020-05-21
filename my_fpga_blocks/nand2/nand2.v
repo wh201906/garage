@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2020/05/19 23:36:50
+// Create Date: 2020/05/21 19:46:08
 // Design Name: 
-// Module Name: and2
+// Module Name: nand2
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module and2(
+module nand2(
     input a,
     input b,
     output y
