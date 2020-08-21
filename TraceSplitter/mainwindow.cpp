@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->plotWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::selectionChanged);
     connect(ui->plotWidget, &QCustomPlot::mouseWheel, this, &MainWindow::mouseWheel);
-    connect(ui->plotWidget, &QCustomPlot::mousePress, this, &MainWindow::graphClicked);
+    connect(ui->plotWidget, &QCustomPlot::plottableClick, this, &MainWindow::graphClicked);
 }
 
 MainWindow::~MainWindow()
@@ -82,23 +82,60 @@ void MainWindow::mouseWheel()
 
 void MainWindow::selectionChanged()
 {
-
+    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    if(selection.dataPointCount() > 1)
+    {
+        int begin = selection.dataRange().begin();
+        int end = selection.dataRange().end();
+        ui->selectionLabel->setText(QString("(%1, %2)").arg(begin).arg(end));
+        cursor_l->point1->setCoords(begin, 0);
+        cursor_l->point2->setCoords(begin, 1);
+        cursor_l->setVisible(true);
+        cursor_r->point1->setCoords(end, 0);
+        cursor_r->point2->setCoords(end, 1);
+        cursor_r->setVisible(true);
+    }
 }
 
 void MainWindow::graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
 {
-    qDebug() << dataIndex << event;
+    qDebug() << dataIndex << event << ui->plotWidget->graph()->dataMainKey(dataIndex);
     if(event->button() == Qt::LeftButton)
     {
-        cursor_l->point1->setCoords(ui->plotWidget->graph()->dataMainKey(dataIndex), 0);
-        cursor_l->point2->setCoords(ui->plotWidget->graph()->dataMainKey(dataIndex), 1);
+        cursor_l->point1->setCoords(data_x->at(dataIndex), 0);
+        cursor_l->point2->setCoords(data_x->at(dataIndex), 1);
+        ui->cursorL_Label->setText(QString("CursorL:(%1, %2)").arg(data_x->at(dataIndex)).arg(data_y->at(dataIndex)));
         cursor_l->setVisible(true);
     }
-    else if(event->button() == Qt::LeftButton)
+    else if(event->button() == Qt::RightButton)
     {
-        cursor_r->point1->setCoords(ui->plotWidget->graph()->dataMainKey(dataIndex), 0);
-        cursor_r->point2->setCoords(ui->plotWidget->graph()->dataMainKey(dataIndex), 1);
+        cursor_r->point1->setCoords(data_x->at(dataIndex), 0);
+        cursor_r->point2->setCoords(data_x->at(dataIndex), 1);
+        ui->cursorR_Label->setText(QString("CursorR:(%1, %2)").arg(data_x->at(dataIndex)).arg(data_y->at(dataIndex)));
         cursor_r->setVisible(true);
     }
+    if(ui->selectCursorArrangedBox->isChecked() && cursor_l->visible() && cursor_r->visible() && cursor_l->point1->key() != cursor_r->point1->key())
+    {
+        QCPDataRange range;
+        if(cursor_l->point1->key() < cursor_r->point1->key())
+        {
+            range.setBegin(cursor_l->point1->key());
+            range.setEnd(cursor_r->point1->key());
+        }
+        else
+        {
+            range.setBegin(cursor_r->point1->key());
+            range.setEnd(cursor_l->point1->key());
+        }
+        ui->selectionLabel->setText(QString("Selected:(%1, %2)").arg(range.begin()).arg(range.end()));
+        ui->plotWidget->blockSignals(true);
+        ui->plotWidget->graph()->setSelection(QCPDataSelection(range));
+        ui->plotWidget->blockSignals(false);
+    }
+    ui->plotWidget->replot(); // otherwise, the right won't respond immediately.
+}
+
+void MainWindow::on_deleteSelectedButton_clicked()
+{
 
 }
