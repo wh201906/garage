@@ -30,6 +30,8 @@ private slots:
     void graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
     void on_deleteSelectedButton_clicked();
 
+    void on_deleteUnselectedButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QVector<double>* data_x;

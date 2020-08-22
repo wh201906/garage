@@ -137,5 +137,29 @@ void MainWindow::graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QM
 
 void MainWindow::on_deleteSelectedButton_clicked()
 {
+    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    int begin = selection.dataRange().begin();
+    int end = selection.dataRange().end();
+    data_y->remove(begin, end - begin);
+    data_x->remove(data_x->size() - (end - begin), end - begin);
+    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph()->setSelection(QCPDataSelection());
+    cursor_l->setVisible(false);
+    cursor_r->setVisible(false);
+    ui->plotWidget->replot();
+}
 
+void MainWindow::on_deleteUnselectedButton_clicked()
+{
+    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    int begin = selection.dataRange().begin();
+    int end = selection.dataRange().end();
+    data_y->remove(end, data_x->size() - end);
+    data_y->remove(0, begin);
+    data_x->remove(end - begin, data_x->size() - (end - begin));
+    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph()->setSelection(QCPDataSelection());
+    cursor_l->setVisible(false);
+    cursor_r->setVisible(false);
+    ui->plotWidget->replot();
 }
