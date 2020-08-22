@@ -34,6 +34,14 @@ private slots:
 
     void on_barValueChanged(int val);
     void on_axisRangeChanged(const QCPRange &range);
+    void on_insertButton_clicked();
+
+    void on_loadPathEdit_returnPressed();
+
+    void on_savePathEdit_returnPressed();
+
+    void on_saveButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QVector<double>* data_x;
@@ -41,5 +49,7 @@ private:
     QFile* file;
     QCPItemStraightLine* cursor_l;
     QCPItemStraightLine* cursor_r;
+    void myResizeYAxis();
+    void myResizeXAxis();
 };
 #endif // MAINWINDOW_H

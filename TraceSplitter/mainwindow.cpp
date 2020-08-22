@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->plotWidget, &QCustomPlot::plottableClick, this, &MainWindow::graphClicked);
     connect(ui->horizontalScrollBar, &QScrollBar::valueChanged, this, &MainWindow::on_barValueChanged);
     connect(ui->plotWidget->xAxis,  QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &MainWindow::on_axisRangeChanged);
+    connect(ui->insert2BeginButton, &QPushButton::clicked, this, &MainWindow::on_insertButton_clicked);
+    connect(ui->insert2EndButton, &QPushButton::clicked, this, &MainWindow::on_insertButton_clicked);
 }
 
 MainWindow::~MainWindow()
@@ -42,7 +44,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_loadButton_clicked()
 {
     int counter_x = 0;
-    int y_max = INT_MIN, y_min = INT_MAX;
+    data_x->clear();
     data_y->clear();
     bool isOk = false;
     file = new QFile(ui->loadPathEdit->text());
@@ -59,28 +61,22 @@ void MainWindow::on_loadButton_clicked()
             int tmpInt = tmpString.toInt(&isOk);
             if(isOk)
             {
-                data_x->append(counter_x);
+                data_x->append(counter_x); // 0 ~ data_x->size()-1
                 data_y->append(tmpInt);
                 counter_x++;
-                if(tmpInt > y_max)
-                    y_max = tmpInt;
-                if(tmpInt < y_min)
-                    y_min = tmpInt;
             }
         }
     }
 
     ui->plotWidget->graph()->setData(*data_x, *data_y, true);
-    ui->plotWidget->xAxis->setRange(-1, counter_x + 1);
-    ui->plotWidget->yAxis->setRange(y_min - 10, y_max + 10);
+    myResizeXAxis();
     ui->plotWidget->replot();
-    ui->horizontalScrollBar->setRange(-100, (counter_x + 1) * 100);
-    ui->horizontalScrollBar->setPageStep((counter_x + 2) * 100);
+
 }
 
 void MainWindow::mouseWheel()
 {
-    ui->plotWidget->graph()->rescaleValueAxis(false, true);
+    myResizeYAxis();
 }
 
 void MainWindow::selectionChanged()
@@ -149,6 +145,7 @@ void MainWindow::on_deleteSelectedButton_clicked()
     ui->plotWidget->graph()->setSelection(QCPDataSelection());
     cursor_l->setVisible(false);
     cursor_r->setVisible(false);
+    myResizeXAxis();
     ui->plotWidget->replot();
 }
 
@@ -164,13 +161,14 @@ void MainWindow::on_deleteUnselectedButton_clicked()
     ui->plotWidget->graph()->setSelection(QCPDataSelection());
     cursor_l->setVisible(false);
     cursor_r->setVisible(false);
+    myResizeXAxis();
     ui->plotWidget->replot();
 }
 
 void MainWindow::on_barValueChanged(int val)
 {
     ui->plotWidget->xAxis->setRange(val / 100.0 - 1, ui->horizontalScrollBar->pageStep() / 100, Qt::AlignLeft);
-    ui->plotWidget->graph()->rescaleValueAxis(false, true);
+    myResizeYAxis();
     ui->plotWidget->replot();
 }
 
@@ -186,7 +184,89 @@ void MainWindow::on_axisRangeChanged(const QCPRange &range)
     ui->plotWidget->xAxis->setRange(targetRange);
     ui->horizontalScrollBar->setValue(qRound(targetRange.lower * 100.0));
     ui->horizontalScrollBar->setPageStep(qRound((targetRange.size() + 2) * 100.0));
-    ui->plotWidget->graph()->rescaleValueAxis(false, true);
+    myResizeYAxis();
     ui->horizontalScrollBar->blockSignals(false);
     ui->plotWidget->xAxis->blockSignals(false);
 }
+
+void MainWindow::on_insertButton_clicked()
+{
+    QVector<double> tmp_y;
+    int counter_x = 0;
+    //data_y->clear();
+    bool isOk = false;
+    file = new QFile(ui->insertPathEdit->text());
+    if(!file->open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::information(this, "Error", "Failed to open the file");
+        return;
+    }
+    while(!file->atEnd())
+    {
+        QString tmpString = file->readLine();
+        if(tmpString != "")
+        {
+            int tmpInt = tmpString.toInt(&isOk);
+            if(isOk)
+            {
+                tmp_y.append(tmpInt);
+                counter_x++;
+            }
+        }
+    }
+    if(qobject_cast<QPushButton *>(sender()) == ui->insert2BeginButton)
+    {
+        qDebug() << "insert2begin";
+        *data_y = tmp_y + (*data_y);
+    }
+    else
+    {
+        qDebug() << "insert2end";
+        *data_y += tmp_y;
+    }
+    counter_x += data_x->size();
+    for(int i = data_x->size(); i < counter_x; i++)
+        data_x->append(i);
+    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
+    myResizeXAxis();
+    ui->plotWidget->replot();
+}
+
+void MainWindow::myResizeXAxis()
+{
+    ui->plotWidget->xAxis->setRange(-1, data_x->size() + 1);
+    ui->horizontalScrollBar->setRange(-100, (data_x->size() + 1) * 100);
+    ui->horizontalScrollBar->setPageStep((data_x->size() + 2) * 100);
+}
+
+void MainWindow::myResizeYAxis()
+{
+    int y_min = INT_MAX, y_max = INT_MIN, tmp;
+    for(int i = ui->plotWidget->xAxis->range().lower; i <= ui->plotWidget->xAxis->range().upper; i++)
+    {
+        if(i < 0 || i >= data_y->size())
+            continue;
+        tmp = ui->plotWidget->graph()->dataMainValue(i);
+        if(tmp > y_max)
+            y_max = tmp;
+        if(tmp < y_min)
+            y_min = tmp;
+    }
+    double delta = (y_max - y_min) * 0.05; // 5% margin, the rescaleValueAxis() has no margin and make it hard to choose the min/max point.
+    ui->plotWidget->yAxis->setRange(y_min - delta, y_max + delta);
+}
+
+void MainWindow::on_saveButton_clicked()
+{
+
+}
+void MainWindow::on_loadPathEdit_returnPressed()
+{
+    on_loadButton_clicked();
+}
+
+void MainWindow::on_savePathEdit_returnPressed()
+{
+    on_saveButton_clicked();
+}
+
