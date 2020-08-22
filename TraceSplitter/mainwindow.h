@@ -32,6 +32,8 @@ private slots:
 
     void on_deleteUnselectedButton_clicked();
 
+    void on_barValueChanged(int val);
+    void on_axisRangeChanged(const QCPRange &range);
 private:
     Ui::MainWindow *ui;
     QVector<double>* data_x;

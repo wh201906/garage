@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->plotWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::selectionChanged);
     connect(ui->plotWidget, &QCustomPlot::mouseWheel, this, &MainWindow::mouseWheel);
     connect(ui->plotWidget, &QCustomPlot::plottableClick, this, &MainWindow::graphClicked);
+    connect(ui->horizontalScrollBar, &QScrollBar::valueChanged, this, &MainWindow::on_barValueChanged);
+    connect(ui->plotWidget->xAxis,  QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &MainWindow::on_axisRangeChanged);
 }
 
 MainWindow::~MainWindow()
@@ -69,10 +71,11 @@ void MainWindow::on_loadButton_clicked()
     }
 
     ui->plotWidget->graph()->setData(*data_x, *data_y, true);
-    ui->plotWidget->xAxis->setRange(0, counter_x);
+    ui->plotWidget->xAxis->setRange(-1, counter_x + 1);
     ui->plotWidget->yAxis->setRange(y_min - 10, y_max + 10);
     ui->plotWidget->replot();
-
+    ui->horizontalScrollBar->setRange(-100, (counter_x + 1) * 100);
+    ui->horizontalScrollBar->setPageStep((counter_x + 2) * 100);
 }
 
 void MainWindow::mouseWheel()
@@ -162,4 +165,28 @@ void MainWindow::on_deleteUnselectedButton_clicked()
     cursor_l->setVisible(false);
     cursor_r->setVisible(false);
     ui->plotWidget->replot();
+}
+
+void MainWindow::on_barValueChanged(int val)
+{
+    ui->plotWidget->xAxis->setRange(val / 100.0 - 1, ui->horizontalScrollBar->pageStep() / 100, Qt::AlignLeft);
+    ui->plotWidget->graph()->rescaleValueAxis(false, true);
+    ui->plotWidget->replot();
+}
+
+void MainWindow::on_axisRangeChanged(const QCPRange &range)
+{
+    ui->horizontalScrollBar->blockSignals(true);
+    ui->plotWidget->xAxis->blockSignals(true);
+    QCPRange targetRange = range;
+    if(targetRange.lower < -1)
+        targetRange.lower = -1;
+    if(targetRange.upper > data_x->size() + 1)
+        targetRange.upper = data_x->size() + 1;
+    ui->plotWidget->xAxis->setRange(targetRange);
+    ui->horizontalScrollBar->setValue(qRound(targetRange.lower * 100.0));
+    ui->horizontalScrollBar->setPageStep(qRound((targetRange.size() + 2) * 100.0));
+    ui->plotWidget->graph()->rescaleValueAxis(false, true);
+    ui->horizontalScrollBar->blockSignals(false);
+    ui->plotWidget->xAxis->blockSignals(false);
 }
