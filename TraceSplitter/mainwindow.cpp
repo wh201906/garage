@@ -22,9 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->plotWidget->axisRect()->setRangeDrag(Qt::Horizontal);
     ui->plotWidget->axisRect()->setRangeZoom(Qt::Horizontal);
     ui->plotWidget->addGraph();
-    ui->plotWidget->graph()->setLineStyle(QCPGraph::lsLine);
-    ui->plotWidget->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
-    ui->plotWidget->graph()->setSelectable(QCP::stDataRange);
+    ui->plotWidget->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->plotWidget->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 3));
+    ui->plotWidget->graph(0)->setSelectable(QCP::stDataRange);
 
     connect(ui->plotWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::selectionChanged);
     connect(ui->plotWidget, &QCustomPlot::mouseWheel, this, &MainWindow::mouseWheel);
@@ -69,7 +69,7 @@ void MainWindow::on_loadButton_clicked()
     }
     file->close();
     delete file;
-    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph(0)->setData(*data_x, *data_y, true);
     myResizeXAxis();
     ui->plotWidget->replot();
 }
@@ -81,7 +81,7 @@ void MainWindow::mouseWheel()
 
 void MainWindow::selectionChanged()
 {
-    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    QCPDataSelection selection = ui->plotWidget->graph(0)->selection();
     if(selection.dataPointCount() > 1)
     {
         int begin = selection.dataRange().begin();
@@ -98,7 +98,7 @@ void MainWindow::selectionChanged()
 
 void MainWindow::graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
 {
-    qDebug() << dataIndex << event << ui->plotWidget->graph()->dataMainKey(dataIndex);
+    qDebug() << dataIndex << event << ui->plotWidget->graph(0)->dataMainKey(dataIndex);
     if(event->button() == Qt::LeftButton)
     {
         cursor_l->point1->setCoords(data_x->at(dataIndex), 0);
@@ -126,9 +126,9 @@ void MainWindow::graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QM
             range.setBegin(cursor_r->point1->key());
             range.setEnd(cursor_l->point1->key());
         }
-        ui->selectionLabel->setText(QString("Selected:(%1, %2)").arg(range.begin()).arg(range.end()));
+        ui->selectionLabel->setText(QString("Selected:(%1, %2), Δ=%3").arg(range.begin()).arg(range.end()).arg(range.end() - range.begin()));
         ui->plotWidget->blockSignals(true);
-        ui->plotWidget->graph()->setSelection(QCPDataSelection(range));
+        ui->plotWidget->graph(0)->setSelection(QCPDataSelection(range));
         ui->plotWidget->blockSignals(false);
     }
     ui->plotWidget->replot(); // otherwise, the right won't respond immediately.
@@ -136,13 +136,13 @@ void MainWindow::graphClicked(QCPAbstractPlottable *plottable, int dataIndex, QM
 
 void MainWindow::on_deleteSelectedButton_clicked()
 {
-    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    QCPDataSelection selection = ui->plotWidget->graph(0)->selection();
     int begin = selection.dataRange().begin();
     int end = selection.dataRange().end();
     data_y->remove(begin, end - begin);
     data_x->remove(data_x->size() - (end - begin), end - begin);
-    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
-    ui->plotWidget->graph()->setSelection(QCPDataSelection());
+    ui->plotWidget->graph(0)->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph(0)->setSelection(QCPDataSelection());
     cursor_l->setVisible(false);
     cursor_r->setVisible(false);
     myResizeXAxis();
@@ -151,14 +151,14 @@ void MainWindow::on_deleteSelectedButton_clicked()
 
 void MainWindow::on_deleteUnselectedButton_clicked()
 {
-    QCPDataSelection selection = ui->plotWidget->graph()->selection();
+    QCPDataSelection selection = ui->plotWidget->graph(0)->selection();
     int begin = selection.dataRange().begin();
     int end = selection.dataRange().end();
     data_y->remove(end, data_x->size() - end);
     data_y->remove(0, begin);
     data_x->remove(end - begin, data_x->size() - (end - begin));
-    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
-    ui->plotWidget->graph()->setSelection(QCPDataSelection());
+    ui->plotWidget->graph(0)->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph(0)->setSelection(QCPDataSelection());
     cursor_l->setVisible(false);
     cursor_r->setVisible(false);
     myResizeXAxis();
@@ -229,7 +229,7 @@ void MainWindow::on_insertButton_clicked()
     counter_x += data_x->size();
     for(int i = data_x->size(); i < counter_x; i++)
         data_x->append(i);
-    ui->plotWidget->graph()->setData(*data_x, *data_y, true);
+    ui->plotWidget->graph(0)->setData(*data_x, *data_y, true);
     myResizeXAxis();
     ui->plotWidget->replot();
 }
@@ -248,7 +248,7 @@ void MainWindow::myResizeYAxis()
     {
         if(i < 0 || i >= data_y->size())
             continue;
-        tmp = ui->plotWidget->graph()->dataMainValue(i);
+        tmp = ui->plotWidget->graph(0)->dataMainValue(i);
         if(tmp > y_max)
             y_max = tmp;
         if(tmp < y_min)
