@@ -67,11 +67,11 @@ void MainWindow::on_loadButton_clicked()
             }
         }
     }
-
+    file->close();
+    delete file;
     ui->plotWidget->graph()->setData(*data_x, *data_y, true);
     myResizeXAxis();
     ui->plotWidget->replot();
-
 }
 
 void MainWindow::mouseWheel()
@@ -214,6 +214,8 @@ void MainWindow::on_insertButton_clicked()
             }
         }
     }
+    file->close();
+    delete file;
     if(qobject_cast<QPushButton *>(sender()) == ui->insert2BeginButton)
     {
         qDebug() << "insert2begin";
@@ -258,7 +260,26 @@ void MainWindow::myResizeYAxis()
 
 void MainWindow::on_saveButton_clicked()
 {
-
+    file = new QFile(ui->savePathEdit->text());
+    if(file->exists())
+    {
+        QMessageBox::StandardButton result = QMessageBox::information(this, "Info", "File already exists.\nReplace it?", QMessageBox::Yes | QMessageBox::No);
+        if(result != QMessageBox::Yes)
+            return;
+    }
+    if(!file->open(QFile::WriteOnly | QFile::Text | QFile::Truncate))
+    {
+        QMessageBox::information(this, "Error", "Failed to open the file");
+        return;
+    }
+    for(double item : *data_y)
+    {
+        int tmpInt = qRound(item);
+        qDebug() << file->write((QString::number(tmpInt) + "\n").toLocal8Bit());
+    }
+    file->close();
+    delete file;
+    QMessageBox::information(this, "Info", "Saved");
 }
 void MainWindow::on_loadPathEdit_returnPressed()
 {
