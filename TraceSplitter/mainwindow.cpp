@@ -291,3 +291,22 @@ void MainWindow::on_savePathEdit_returnPressed()
     on_saveButton_clicked();
 }
 
+
+void MainWindow::on_PIE_autoRangeButton_clicked()
+{
+    QVector<double> data_zero;
+    for(int i = 1; i < data_x->size(); i++)
+    {
+        if(data_y->at(i - 1)*data_y->at(i) <= 0)
+        {
+            double a = qAbs(data_y->at(i - 1)), b = qAbs(data_y->at(i));
+            double delta = a / (a + b);
+            data_zero += i - 1 + delta;
+        }
+    }
+    double int_min = data_zero.last() - data_zero.first(), int_max = 0;
+    for(int i = 1; i < data_zero.size(); i++)
+    {
+
+    }
+}

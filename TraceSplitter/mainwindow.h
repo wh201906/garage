@@ -42,6 +42,8 @@ private slots:
 
     void on_saveButton_clicked();
 
+    void on_PIE_autoRangeButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QVector<double>* data_x;
