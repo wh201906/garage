@@ -26,3 +26,180 @@ STM32/**/*.map
 STM32/**/*.uvguix*
 STM32/**/*.uvoptx
 STM32/**/*.hex
+
+# for FPGA project
+#########################################################################################################
+##	This is an example .gitignore file for Vivado, please treat it as an example as 
+##	it might not be complete. In addition, XAPP 1165 should be followed.
+#########################################################################################################
+#########
+#Exclude all
+#########
+FPGA/**/*
+!FPGA/**/*/
+!FPGA/**/.gitignore
+###########################################################################
+##	VIVADO
+###########################################################################
+#########
+#Source files:
+#########
+#Do NOT ignore VHDL, Verilog, block diagrams or EDIF files.
+!FPGA/**/*.vhd
+!FPGA/**/*.v
+!FPGA/**/*.bd
+!FPGA/**/*.edif
+#########
+#IP files
+#########
+#.xci: synthesis and implemented not possible - you need to return back to the previous version to generate output products
+#.xci + .dcp: implementation possible but not re-synthesis
+#*.xci(www.spiritconsortium.org)
+!FPGA/**/*.xci
+#*.dcp(checkpoint files)
+!FPGA/**/*.dcp
+!FPGA/**/*.vds
+!FPGA/**/*.pb
+#All bd comments and layout coordinates are stored within .ui
+!FPGA/**/*.ui
+!FPGA/**/*.ooc
+#########
+#Simulation logic analyzer
+#########
+!FPGA/**/*.wcfg
+!FPGA/**/*.coe
+#########
+#MIG
+#########
+!FPGA/**/*.prj
+!FPGA/**/*.mem
+#########
+#Project files
+#########
+#XPR  +  *.XML ? XPR (Files are merged into a single XPR file for 2014.1 version)
+#Do NOT ignore *.xpr files
+!FPGA/**/*.xpr
+#Include *.xml files for 2013.4 or earlier version
+!FPGA/**/*.xml
+#########
+#Constraint files
+#########
+#Do NOT ignore *.xdc files
+!FPGA/**/*.xdc
+#########
+#TCL - files
+#########
+!FPGA/**/*.tcl
+#########
+#C-files
+#########
+!FPGA/**/*.c
+!FPGA/**/*.h
+!FPGA/**/*.elf
+!FPGA/**/*.bmm
+!FPGA/**/*.xmp
+
+# my customized rules
+## ignored dirs 
+FPGA/**/*.sim/
+FPGA/**/*.runs/
+FPGA/**/*.cache/
+FPGA/**/*.hw/
+FPGA/**/*.gen/
+
+# for C/C++/Qt/... project
+
+# A listing of all the files included in the project
+C/**/.files
+
+# Include directories
+C/**/.includes
+
+# Project configuration settings like predefined Macros
+C/**/.config
+
+# Qt Creator settings
+C/**/.creator
+
+# User project settings
+C/**/.creator.user*
+
+# Qt Creator backups
+C/**/.autosave
+
+# Flags for Clang Code Model
+C/**/.cxxflags
+C/**/.cflags
+
+### CMake ###
+C/**/CMakeLists.txt.user
+C/**/CMakeCache.txt
+C/**/CMakeFiles
+C/**/CMakeScripts
+C/**/Testing
+C/**/cmake_install.cmake
+C/**/install_manifest.txt
+C/**/compile_commands.json
+C/**/CTestTestfile.cmake
+C/**/_deps
+
+### CMake Patch ###
+# External projects
+C/**/-prefix/
+
+### Qt ###
+# C++ objects and libs
+C/**/.slo
+C/**/.lo
+C/**/.o
+C/**/.a
+C/**/.la
+C/**/.lai
+C/**/.so
+C/**/.so.*
+C/**/.dll
+C/**/.dylib
+
+# Qt-es
+C/**/object_script.*.Release
+C/**/object_script.*.Debug
+C/**/_plugin_import.cpp
+C/**/.qmake.cache
+C/**/.qmake.stash
+C/**/.pro.user
+C/**/.pro.user.*
+C/**/.qbs.user
+C/**/.qbs.user.*
+C/**/.moc
+C/**/moc_*.cpp
+C/**/moc_*.h
+C/**/qrc_*.cpp
+C/**/ui_*.h
+C/**/.qmlc
+C/**/.jsc
+C/**/Makefile*
+C/**/build-*
+C/**/.qm
+C/**/.prl
+
+# Qt unit tests
+C/**/target_wrapper.*
+
+# QtCreator
+C/**/.autosave
+
+# QtCreator Qml
+C/**/.qmlproject.user
+C/**/.qmlproject.user.*
+
+# QtCreator CMake
+C/**/CMakeLists.txt.user*
+
+# QtCreator 4.8< compilation database 
+C/**/compile_commands.json
+
+# QtCreator local machine specific files for imported projects
+C/**/creator.user*
+
+# general
+!*.md
