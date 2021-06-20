@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 import codecs
 from time import sleep
 from secret import *
@@ -14,19 +15,21 @@ driver = webdriver.Firefox()
 if 'cookie' not in locals().keys():
     cookie = None
 
+
 def login():
     global driver, cookie
     driver.get("http://passport2.chaoxing.com/login")
     while True:
         sleep(0.5)
         try:
-            if str(driver.current_url).find('http://i.mooc.chaoxing.com') is not -1:
+            if str(driver.current_url).find(
+                    'http://i.mooc.chaoxing.com') is not -1:
                 cookie = driver.get_cookies()
-                print(cookie)
                 return True
         except:
             if cookie is None:
                 return False
+
 
 def task():
 
@@ -44,7 +47,8 @@ def task():
     # Stage 1
     driver.get('http://i.mooc.chaoxing.com/space/index')
     driver.implicitly_wait(waitTime)
-    driver.switch_to.frame(driver.find_element_by_id('frame_content'))  # important
+    driver.switch_to.frame(
+        driver.find_element_by_id('frame_content'))  # important
     url = driver.find_element_by_xpath(courseXPath).get_attribute("href")
 
     # Stage 2
@@ -55,8 +59,18 @@ def task():
     # Stage 3
     driver.get(url)
     driver.implicitly_wait(waitTime)
+    driver.switch_to.frame(driver.find_element_by_id('iframe'))
+    video = driver.find_element_by_xpath(videoXPath)
+    ActionChains(driver).click(video).perform()
+    sleep(5)
+    driver.get("http://www.baidu.com")
+    driver.implicitly_wait(waitTime)
+    sleep(5)
+
 
 if cookie is None:
     login()
-task()
+for i in range(70):
+    task()
+    print("Counts: ", i + 1)
 sleep(50)
