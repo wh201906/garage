@@ -26,7 +26,7 @@ statisticUrl = ''
 
 driver = webdriver.Firefox()
 WD = WebDriverWait(driver, waitTime, 0.5)
-if 'cookie' not in locals().keys() or cookie is '':
+if 'cookie' not in locals().keys() or cookie == '':
     cookie = None
 
 
@@ -69,7 +69,7 @@ def gotoCourse():
 
     # Stage 1
     try:
-        if courseUrl is '' or usingFastMode is False:
+        if courseUrl == '' or usingFastMode == False:
             locator = (By.ID, 'frame_content')
             WD.until(EC.presence_of_element_located(locator))
             # important
@@ -93,7 +93,7 @@ def task():
     gotoCourse()
 
     # Stage 2
-    if chapterUrl is '' or usingFastMode is False:
+    if chapterUrl == '' or usingFastMode == False:
         locator = (By.XPATH, chapterXPath)
         WD.until(EC.presence_of_element_located(locator))
         url = driver.find_element_by_xpath(chapterXPath).get_attribute("href")
@@ -122,7 +122,7 @@ def statistic():
 
     gotoCourse()
 
-    if statisticUrl is '' or usingFastMode is False:
+    if statisticUrl == '' or usingFastMode == False:
         locator = (By.XPATH, statisticXPath)
         WD.until(EC.presence_of_element_located(locator))
         url = driver.find_element_by_xpath(statisticXPath).get_attribute("href")
@@ -170,10 +170,10 @@ for i in range(200):
     task()
     print("Counts:", i + 1, end=', ')
     print("Time Elapsed:", time() - taskTime, time() - startTime)
-    if i % 50 is 0:
+    if i % 50 == 0:
         (total, curr) = statistic()
         print("Current Process:", "Require:", total, "Current:", curr)
-        if curr is total:
+        if curr == total:
             break
 (total, curr) = statistic()
 print("Current Process:", "Require:", total, "Current:", curr)
