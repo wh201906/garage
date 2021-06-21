@@ -17,12 +17,18 @@ from secret import *
 # videoXPath
 statisticXPath = '/html/body/div[4]/div/div/div[2]/ul/li[3]/a'
 tableXPath = '/html/body/div[3]/div/div[2]/div/table'
+waitTime = 4
+usingFastMode = True
 
-waitTime = 8
+courseUrl = ''
+chapterUrl = ''
+statisticUrl = ''
+
 driver = webdriver.Firefox()
 WD = WebDriverWait(driver, waitTime, 0.5)
 if 'cookie' not in locals().keys() or cookie is '':
     cookie = None
+
 
 def rest():
     sleep(random.randint(2, waitTime))
@@ -32,8 +38,9 @@ def rest():
         pass
     sleep(random.randint(2, waitTime))
 
+
 def login():
-    global driver, cookie, WD
+    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl
     driver.get("http://passport2.chaoxing.com/login")
     while True:
         sleep(0.5)
@@ -48,7 +55,7 @@ def login():
 
 
 def gotoCourse():
-    global driver, cookie, WD
+    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl
     # Load
     url = "http://passport2.chaoxing.com/login"
     driver.get(url)
@@ -62,47 +69,69 @@ def gotoCourse():
 
     # Stage 1
     try:
-        locator = (By.ID, 'frame_content')
-        WD.until(EC.presence_of_element_located(locator))
-        # important
-        driver.switch_to.frame(driver.find_element_by_id('frame_content'))
-        locator = (By.XPATH, courseXPath)
-        WD.until(EC.presence_of_element_located(locator))
-        url = driver.find_element_by_xpath(courseXPath).get_attribute("href")
+        if courseUrl is '' or usingFastMode is False:
+            locator = (By.ID, 'frame_content')
+            WD.until(EC.presence_of_element_located(locator))
+            # important
+            driver.switch_to.frame(driver.find_element_by_id('frame_content'))
+            locator = (By.XPATH, courseXPath)
+            WD.until(EC.presence_of_element_located(locator))
+            url = driver.find_element_by_xpath(courseXPath).get_attribute(
+                "href")
+            courseUrl = url
+        else:
+            sleep(random.random() * 2 + 0.5)
+            url = courseUrl
         driver.get(url)
     except:
         return False
 
 
 def task():
-    global driver, cookie, WD
+    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl
 
     gotoCourse()
 
     # Stage 2
-    locator = (By.XPATH, chapterXPath)
-    WD.until(EC.presence_of_element_located(locator))
-    url = driver.find_element_by_xpath(chapterXPath).get_attribute("href")
+    if chapterUrl is '' or usingFastMode is False:
+        locator = (By.XPATH, chapterXPath)
+        WD.until(EC.presence_of_element_located(locator))
+        url = driver.find_element_by_xpath(chapterXPath).get_attribute("href")
+        chapterUrl = url
+    else:
+        sleep(random.random() * 2 + 0.5)
+        url = chapterUrl
     driver.get(url)
 
     # Stage 3
     locator = (By.ID, 'iframe')
-    WD.until(EC.presence_of_element_located(locator))
-    driver.switch_to.frame(driver.find_element_by_id('iframe'))
+    if usingFastMode:
+        sleep(random.random() * 2 + 0.5)
+    else:
+        WD.until(EC.presence_of_element_located(locator))
+        driver.switch_to.frame(driver.find_element_by_id('iframe'))
     # video = driver.find_element_by_xpath(videoXPath)
     # doesn't perform click as expected
     # ActionChains(driver).click(video).perform()
 
     rest()
 
+
 def statistic():
-    global driver, cookie, WD
+    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl
 
     gotoCourse()
-    locator = (By.XPATH, statisticXPath)
-    WD.until(EC.presence_of_element_located(locator))
-    url = driver.find_element_by_xpath(statisticXPath).get_attribute("href")
+
+    if statisticUrl is '' or usingFastMode is False:
+        locator = (By.XPATH, statisticXPath)
+        WD.until(EC.presence_of_element_located(locator))
+        url = driver.find_element_by_xpath(statisticXPath).get_attribute("href")
+        statisticUrl = url
+    else:
+        sleep(random.random() * 2 + 0.5)
+        url = statisticUrl
     driver.get(url)
+
     locator = (By.XPATH, tableXPath)
     WD.until(EC.presence_of_element_located(locator))
     table = driver.find_element_by_xpath(tableXPath)
@@ -119,7 +148,8 @@ def statistic():
 
     rest()
     return (float(rows[1][id][:-1]), float(rows[2][id]))
-    
+
+
 random.seed()
 if cookie is None:
     if login():
@@ -145,4 +175,6 @@ for i in range(200):
         print("Current Process:", "Require:", total, "Current:", curr)
         if curr is total:
             break
+(total, curr) = statistic()
+print("Current Process:", "Require:", total, "Current:", curr)
 print("Finished")
