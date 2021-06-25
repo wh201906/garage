@@ -1,6 +1,10 @@
 %{
 #include <stdio.h>
 #include "common.h"
+#include <vector>
+
+using namespace std;
+vector<element> elementList;
 
 FILE *file;
 
@@ -9,7 +13,7 @@ int currLine = 1;
 
 int finishedFlag = 0;
 
-void blockComment();
+int blockComment();
 void printSingle();
 void handleDec();
 void handleOct();
@@ -29,58 +33,58 @@ LineComment "//".+$
 
 %%
 
-{LineComment}   { printf("Comment: "); ECHO; }
-"/*"            { blockComment(); }
+{LineComment}   { printf("Comment: "); ECHO; return(COMMENT); }
+"/*"            { return(blockComment() ? COMMENT : ERROR); }
 
-"break"         { printSingle(); /*return(BREAK);*/ }
-"const"         { printSingle(); /*return(CONST);*/ }
-"continue"      { printSingle(); /*return(CONTINUE);*/ }
-"else"          { printSingle(); /*return(ELSE);*/ }
-"if"            { printSingle(); /*return(IF);*/ }
-"int"           { printSingle(); /*return(INT);*/ }
-"return"        { printSingle(); /*return(RETURN);*/ }
-"void"          { printSingle(); /*return(VOID);*/ }
-"while"         { printSingle(); /*return(WHILE);*/ }
+"break"         { printSingle(); return(BREAK); }
+"const"         { printSingle(); return(CONST); }
+"continue"      { printSingle(); return(CONTINUE); }
+"else"          { printSingle(); return(ELSE); }
+"if"            { printSingle(); return(IF); }
+"int"           { printSingle(); return(INT); }
+"return"        { printSingle(); return(RETURN); }
+"void"          { printSingle(); return(VOID); }
+"while"         { printSingle(); return(WHILE); }
 
-{Identifier}    { handleID(); /*return(yytext)*/ }
+{Identifier}    { handleID(); return(IDENTIFIER); }
 
-{IntConst_dec}  { handleDec(); /*return(INTCONST);*/ }
-{IntConst_oct}  { handleOct(); /*return(INTCONST);*/ }
-{IntConst_hex}  { handleHex(); /*return(INTCONST);*/ }
+{IntConst_dec}  { handleDec(); return(INTCONST); }
+{IntConst_oct}  { handleOct(); return(INTCONST); }
+{IntConst_hex}  { handleHex(); return(INTCONST); }
 
 
-"&&"            { printSingle(); /*return(OP_L_AND);*/ }
-"||"            { printSingle(); /*return(OP_L_OR);*/ }
-"!"             { printSingle(); /*return('!');*/ }
+"&&"            { printSingle(); return(OP_L_AND); }
+"||"            { printSingle(); return(OP_L_OR); }
+"!"             { printSingle(); return('!'); }
 
-"<="            { printSingle(); /*return(OP_N_LE);*/ }
-">="            { printSingle(); /*return(OP_N_GE);*/ }
-"=="            { printSingle(); /*return(OP_N_EQ);*/ }
-"!="            { printSingle(); /*return(OP_N_NE);*/ }
-"<"             { printSingle(); /*return('<');*/ }
-">"             { printSingle(); /*return('>');*/ }
+"<="            { printSingle(); return(OP_N_LE); }
+">="            { printSingle(); return(OP_N_GE); }
+"=="            { printSingle(); return(OP_N_EQ); }
+"!="            { printSingle(); return(OP_N_NE); }
+"<"             { printSingle(); return('<'); }
+">"             { printSingle(); return('>'); }
 
-"-"             { printSingle(); /*return('-');*/ }
-"+"             { printSingle(); /*return('+');*/ }
-"*"             { printSingle(); /*return('*');*/ }
-"/"             { printSingle(); /*return('/');*/ }
-"%"             { printSingle(); /*return('%');*/ }
+"-"             { printSingle(); return('-'); }
+"+"             { printSingle(); return('+'); }
+"*"             { printSingle(); return('*'); }
+"/"             { printSingle(); return('/'); }
+"%"             { printSingle(); return('%'); }
  
-"="             { printSingle(); /*return('=');*/ }
-";"             { printSingle(); /*return(';');*/ }
-","             { printSingle(); /*return(',');*/ }
-"("             { printSingle(); /*return('(');*/ }
-")"             { printSingle(); /*return(')');*/ }
-"["             { printSingle(); /*return('[');*/ }
-"]"             { printSingle(); /*return(']');*/ }
-"{"             { printSingle(); /*return('{');*/ }
-"}"             { printSingle(); /*return('}');*/ }
+"="             { printSingle(); return('='); }
+";"             { printSingle(); return(';'); }
+","             { printSingle(); return(','); }
+"("             { printSingle(); return('('); }
+")"             { printSingle(); return(')'); }
+"["             { printSingle(); return('['); }
+"]"             { printSingle(); return(']'); }
+"{"             { printSingle(); return('{'); }
+"}"             { printSingle(); return('}'); }
  
 "\n"|"\r\n"     { printf("\n%4d: ", ++currLine); }
 
 [ \t\v\r\n\f]   { /* do nothing */ }
 
-.               { handleError(); }
+.               { handleError(); return(ERROR); }
 
 %%
 
@@ -92,7 +96,7 @@ int yywrap()
 }
 
 
-void blockComment()
+int blockComment()
 {
 	char ch;
     int flag, startLine;
@@ -100,7 +104,7 @@ void blockComment()
     printf("Comment: \n      /");
     putchar('*');
     flag = 0;
-	while ((ch = input()) != '\0')
+	while ((ch = yyinput()) != '\0')
 	{
 		putchar(ch);
 		if (ch == '*')
@@ -122,7 +126,12 @@ void blockComment()
         }
 	}
     if (!(flag && ch == '/'))
+    {
         printf("\nError at line %d: Incomplete comment\n", startLine);
+        return 0;
+    }
+    return 1;
+        
 }
 
 void printSingle()
@@ -170,6 +179,10 @@ void handleID()
 
 int main(int argc, char *argv[])
 {
+    int currToken;
+#ifdef DEBUG
+    yyin = fopen("test.sy", "r");
+#else
     if(argc <= 1)
     {
         printf("Processing stdin\n");
@@ -187,9 +200,14 @@ int main(int argc, char *argv[])
             yyin = file;
         }
     }
+#endif
     finishedFlag = 0;
     printf("\n%4d: ", 1);
     while(!finishedFlag)
-        yylex();
+    {
+        currToken = yylex();
+        if(currToken != ERROR && currToken != COMMENT)
+            elementList.push_back({yylex(), yylval});
+    }
     return 0;
 }
