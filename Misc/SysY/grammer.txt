@@ -1,0 +1,48 @@
+Grammer:
+E->Te
+e->ATe|#
+t->Ft
+t->MFt|#
+F->(E)|i
+A->+|-
+M->*|/
+
+Start: E
+Terminal symbols: +-*/i()
+#: empty
+$: end symbol
+
+FIRST[E] = FIRST[T] = FIRST[F] = {(, i}
+FIRST[e] = {+, -, #}
+FIRST[t] = {*, /, #}
+FIRST[A] = {+, -}
+FIRST[M] = {*, /}
+
+FIRST[Te] = {(, i}
+FIRST[ATe] = {+, -}
+FIRST[Ft] = {(, i}
+FIRST[MFt] = {*, /}
+FIRST[(E)] = {(}
+
+FOLLOW[e] = {$, )}
+FOLLOW[T] = {+, -, $, )}
+FOLLOW[A] = {(, i}
+FOLLOW[t] = {+, -, $, )}
+FOLLOW[F] = {+, -, *, /, $, )}
+FOLLOW[M] = {(, i}
+FOLLOW[E] = {$, )}
+
+SELECT[E->Te] = {(, i}
+SELECT[e->ATe] = {+, -}
+SELECT[e->#] = {$, )}
+SELECT[T->Ft] = {(, i}
+SELECT[t->MFt] = {*, /}
+SELECT[t->#] = {+, -, $, )}
+SELECT[F->(E)] = {(}
+SELECT[F->i] = {i}
+SELECT[A->+] = {+}
+SELECT[A->-] = {-}
+SELECT[M->*] = {*}
+SELECT[M->/] = {-}
+
+LL(1)
