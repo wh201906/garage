@@ -1,0 +1,15 @@
+
+
+int main()
+{
+    // This is a comment
+    int _ast1656 = 1; // This is a comment
+    int hhe = 0567;
+    
+    /* block comment start
+    int abc=123;
+    main()
+        block comment end*/
+    return 0;
+    /* imcomplete comment
+}
