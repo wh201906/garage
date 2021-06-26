@@ -1,7 +1,7 @@
-Grammer:
+Syntax:
 E->Te
 e->ATe|#
-t->Ft
+T->Ft
 t->MFt|#
 F->(E)|i
 A->+|-

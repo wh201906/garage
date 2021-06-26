@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "common.h"
 #include <vector>
+#include "down.hpp"
 
 using namespace std;
 vector<element> elementList;
