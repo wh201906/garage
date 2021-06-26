@@ -1,3 +1,5 @@
+%option noyywrap
+
 %{
 #include <stdio.h>
 #include "common.h"
@@ -11,8 +13,6 @@ FILE *file;
 
 int errorLine = 0;
 int currLine = 1;
-
-int finishedFlag = 0;
 
 int blockComment();
 void printSingle();
@@ -89,30 +89,22 @@ LineComment "//".+$
 
 %%
 
-int yywrap()
-{
-    printf("\nScan finished\n");
-    finishedFlag = 1;
-    return(1);
-}
-
-
 int blockComment()
 {
-	char ch;
+    char ch;
     int flag, startLine;
     startLine = currLine;
     printf("Comment: \n      /");
     putchar('*');
     flag = 0;
-	while ((ch = yyinput()) != '\0')
-	{
-		putchar(ch);
-		if (ch == '*')
-		{
+    while ((ch = yyinput()) != '\0')
+    {
+        putchar(ch);
+        if (ch == '*')
+        {
             flag = 1;
         }
-        else if(flag && ch == '/')
+        else if (flag && ch == '/')
         {
             break;
         }
@@ -120,19 +112,18 @@ int blockComment()
         {
             flag = 0;
         }
-        if(ch == '\n')
+        if (ch == '\n')
         {
             printf("      "); // align
             currLine++;
         }
-	}
+    }
     if (!(flag && ch == '/'))
     {
         printf("\nError at line %d: Incomplete comment\n", startLine);
         return 0;
     }
     return 1;
-        
 }
 
 void printSingle()
@@ -166,7 +157,7 @@ void handleHex()
 
 void handleError()
 {
-    if(currLine > errorLine)
+    if (currLine > errorLine)
     {
         errorLine = currLine;
         printf("\nError at line %d: Undefined symbol\n", currLine);
@@ -178,19 +169,28 @@ void handleID()
     printf("<ID, %s> ", yytext);
 }
 
+// arg[0]: path of the program
+// (arg[1]): target .sy file. If not provided, use stdin
+// arg[2]: parser mode
+// not provided: disable
+// 0: disable
+// 1: table based
+// 2: iteration based
 int main(int argc, char *argv[])
 {
     int currToken;
+    int type;
 #ifdef DEBUG
-    yyin = fopen("test.sy", "r");
+    yyin = fopen("exp.sy", "r");
+
 #else
-    if(argc <= 1)
+    if (argc <= 1)
     {
         printf("Processing stdin\n");
     }
     else
     {
-        if((file = fopen(argv[1], "r")) == NULL)
+        if ((file = fopen(argv[1], "r")) == NULL)
         {
             printf("Failed to open %s\n", argv[1]);
             return 0;
@@ -202,13 +202,23 @@ int main(int argc, char *argv[])
         }
     }
 #endif
-    finishedFlag = 0;
     printf("\n%4d: ", 1);
-    while(!finishedFlag)
+    while ((currToken = yylex()) != 0)
     {
-        currToken = yylex();
-        if(currToken != ERROR && currToken != COMMENT)
-            elementList.push_back({yylex(), yylval});
+        if (currToken != ERROR && currToken != COMMENT)
+            elementList.push_back({currToken, yylval});
     }
+    putchar('\n');
+    if (argc >= 3)
+    {
+        sscanf(argv[2], "%d", &type);
+        if(type == 1)
+            if(Down_Start())
+                printf("valid expression\n");
+    }
+#ifdef DEBUG
+    if(Down_Start())
+                printf("valid expression\n");
+#endif
     return 0;
 }

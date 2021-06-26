@@ -32,6 +32,8 @@ typedef int YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+#ifndef COMMON
+#define COMMON
 
 // extern YYSTYPE yylval;
 YYSTYPE yylval;
@@ -41,3 +43,5 @@ typedef struct
     int type;
     int val;
 } element;
+
+#endif

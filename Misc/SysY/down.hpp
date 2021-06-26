@@ -25,9 +25,9 @@ char analyzeTable[7][8][20] = {
     {"+", "-", "", "", "", "", "", ""},
     {"", "", "*", "/", "", "", "", ""}};
 
-// extern vector<element> elementList; // input series
-vector<element> elementList; // test only
-stack<char> downStack;
+extern vector<element> elementList; // input series
+// vector<element> elementList; // test only
+stack<int> downStack;
 
 int Down_tr(int symbol)
 {
@@ -51,7 +51,7 @@ int Down_tr(int symbol)
 
 SymbolType Down_check(int symbol)
 {
-    if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || symbol == 'i' || symbol == '(' || symbol == ')')
+    if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || symbol == 'i' || symbol == IDENTIFIER || symbol == '(' || symbol == ')')
         return TERMINAL;
     else if (symbol == 'E' || symbol == 'e' || symbol == 'T' || symbol == 't' || symbol == 'F' || symbol == 'A' || symbol == 'M')
         return UNTERMINAL;
@@ -61,9 +61,9 @@ SymbolType Down_check(int symbol)
         return UNDEFINED;
 }
 
-void Down_Start()
+bool Down_Start()
 {
-    char currTop;
+    int currTop;
     int i, ptr = 0, flag = 0;
     SymbolType type;
     int x, y;
@@ -81,38 +81,51 @@ void Down_Start()
         if (type != END && type != TERMINAL)
         {
             printf("Error: unexpected symbol in elementList(result of scanner)\n");
-            return;
+            return false;
         }
         if (Down_check(currTop) != UNTERMINAL)
         {
             printf("Error: unexpected symbol in downStack\n");
-            return;
+            return false;
         }
         if (analyzeTable[x][y][0] == '\0')
         {
             printf("Error: invalid syntax\n");
-            return;
+            return false;
         }
         // X->#
         if (analyzeTable[x][y][0] == '#')
         {
-            ;  // do nothing, skipped
+            continue; // do nothing, skipped
         }
         // normal
-        for (i = 0; analyzeTable[x][y][i] != '\0';i++)
+        for (i = 0; analyzeTable[x][y][i] != '\0'; i++)
         {
-            downStack.push(analyzeTable[x][y][i]);
+            type = Down_check(analyzeTable[x][y][i]);
+            if (type == UNTERMINAL)
+                downStack.push(analyzeTable[x][y][i]);
+            else if (type == TERMINAL && analyzeTable[x][y][i] == elementList[ptr].type)
+                ptr++;
+            else if(type == TERMINAL && analyzeTable[x][y][i] == 'i' && elementList[ptr].type == IDENTIFIER)
+                ptr++;
+            else
+            {
+                printf("Error: Error\n");
+                return false;
+            }
         }
     }
+    return true;
 }
 
-int main() // test only
-{
-    elementList.push_back(element({'i', 0}));
-    elementList.push_back(element({'+', 0}));
-    elementList.push_back(element({'i', 0}));
-    elementList.push_back(element({'*', 0}));
-    elementList.push_back(element({'i', 0}));
-    Down_Start();
-    return 0;
-}
+// int main() // test only
+// {
+//     elementList.push_back(element({'i', 0}));
+//     elementList.push_back(element({'+', 0}));
+//     elementList.push_back(element({'i', 0}));
+//     elementList.push_back(element({'*', 0}));
+//     elementList.push_back(element({'i', 0}));
+//     if(Down_Start())
+//         printf("valid expression\n");
+//     return 0;
+// }
