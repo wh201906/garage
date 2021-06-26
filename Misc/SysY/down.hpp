@@ -1,5 +1,4 @@
 #include <vector>
-#include <map>
 #include <stack>
 #include "common.h"
 
@@ -64,7 +63,7 @@ SymbolType Down_check(int symbol)
 bool Down_Start()
 {
     int currTop;
-    int i, ptr = 0, flag = 0;
+    int i, ptr = 0, flag = 0, tmp;
     SymbolType type;
     int x, y;
     elementList.push_back({'$', 0}); // end symbol
@@ -74,16 +73,35 @@ bool Down_Start()
     {
         downStack.pop();
         flag = 0;
-        type = Down_check(elementList[ptr].type);
         x = Down_tr(currTop);
         y = Down_tr(elementList[ptr].type);
         // error check
+        type = Down_check(elementList[ptr].type);
         if (type != END && type != TERMINAL)
         {
             printf("Error: unexpected symbol in elementList(result of scanner)\n");
             return false;
         }
-        if (Down_check(currTop) != UNTERMINAL)
+        type = Down_check(currTop);
+        if (type == TERMINAL)
+        {
+            if (currTop == elementList[ptr].type)
+            {
+                ptr++;
+                continue;
+            }
+            else if (currTop == 'i' && elementList[ptr].type == IDENTIFIER)
+            {
+                ptr++;
+                continue;
+            }
+            else
+            {
+                printf("Error: Error\n");
+                return false;
+            }
+        }
+        else if (type != UNTERMINAL)
         {
             printf("Error: unexpected symbol in downStack\n");
             return false;
@@ -94,28 +112,19 @@ bool Down_Start()
             return false;
         }
         // X->#
+        printf("Using: %d, %c, %s\n", currTop, currTop, analyzeTable[x][y]);
         if (analyzeTable[x][y][0] == '#')
         {
             continue; // do nothing, skipped
         }
         // normal
         for (i = 0; analyzeTable[x][y][i] != '\0'; i++)
-        {
-            type = Down_check(analyzeTable[x][y][i]);
-            if (type == UNTERMINAL)
-                downStack.push(analyzeTable[x][y][i]);
-            else if (type == TERMINAL && analyzeTable[x][y][i] == elementList[ptr].type)
-                ptr++;
-            else if(type == TERMINAL && analyzeTable[x][y][i] == 'i' && elementList[ptr].type == IDENTIFIER)
-                ptr++;
-            else
-            {
-                printf("Error: Error\n");
-                return false;
-            }
-        }
+            downStack.push(analyzeTable[x][y][i]);
     }
-    return true;
+    if (elementList[ptr].type != '$')
+        return false;
+    else
+        return true;
 }
 
 // int main() // test only

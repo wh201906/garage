@@ -5,6 +5,7 @@
 #include "common.h"
 #include <vector>
 #include "down.hpp"
+#include "down2.hpp"
 
 using namespace std;
 vector<element> elementList;
@@ -182,7 +183,7 @@ int main(int argc, char *argv[])
     int type;
 #ifdef DEBUG
     yyin = fopen("exp.sy", "r");
-
+    printf("Debugging...\n");
 #else
     if (argc <= 1)
     {
@@ -213,8 +214,17 @@ int main(int argc, char *argv[])
     {
         sscanf(argv[2], "%d", &type);
         if(type == 1)
+        {
+            printf("Parser mode: %d\n", type);
             if(Down_Start())
                 printf("valid expression\n");
+        }
+        else if(type == 2)
+        {
+            printf("Parser mode: %d\n", type);
+            if(Down2_Start())
+                printf("valid expression\n");
+        }
     }
 #ifdef DEBUG
     if(Down_Start())

@@ -43,6 +43,6 @@ SELECT[F->i] = {i}
 SELECT[A->+] = {+}
 SELECT[A->-] = {-}
 SELECT[M->*] = {*}
-SELECT[M->/] = {-}
+SELECT[M->/] = {/}
 
 LL(1)
