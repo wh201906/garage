@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+</head>
+<script type="text/javascript">
+    function Func(id) {
+        console.log(id);
+        let z = document.getElementById("Zohm").value;
+        let VrmsmV = 1.0, tmp = 0.0, PmW = 0.0;
+        if (id == "VrmsmV") {
+            VrmsmV = document.getElementById("VrmsmV").value;
+        }
+        else if (id == "VrmsdbmV") {
+            tmp = document.getElementById("VrmsdbmV").value;
+            VrmsmV = Math.pow(10, tmp / 20);
+        }
+        else if (id == "VrmsdbuV") {
+            tmp = document.getElementById("VrmsdbuV").value;
+            VrmsmV = Math.pow(10, tmp / 20 - 3);
+        }
+        else if (id == "PmW") {
+            tmp = document.getElementById("PmW").value;
+            VrmsmV = Math.sqrt(tmp * 1000 * z);
+        }
+        else if (id == "Pdbm") {
+            tmp = document.getElementById("Pdbm").value;
+            tmp = Math.pow(10, tmp / 10)
+            VrmsmV = Math.sqrt(tmp * 1000 * z);
+        }
+        else if (id == "Zohm") {
+            VrmsmV = document.getElementById("VrmsmV").value;
+        }
+        PmW = Math.pow(VrmsmV, 2) / z / 1000;
+        document.getElementById("VrmsmV").value = VrmsmV;
+        document.getElementById("VrmsdbmV").value = 20 * Math.log10(VrmsmV);
+        document.getElementById("VrmsdbuV").value = 20 * (Math.log10(VrmsmV) + 3);
+        document.getElementById("PmW").value = PmW;
+        document.getElementById("Pdbm").value = 10 * Math.log10(PmW);
+    }
+</script>
+
+<body>
+    <table border="1">
+        <tr align="center">
+            <td colspan="7">Voltage&lt;---&gt;Power</td>
+        </tr>
+        <tr align="center">
+            <td>Vrms(mV)</td>
+            <td>Vrms(dbmV)</td>
+            <td>Vrms(dbuV)</td>
+            <td>Power(mW)</td>
+            <td>Power(dbm)</td>
+            <td width="10"></td>
+            <td>Z(ohm)</td>
+        </tr>
+        <tr>
+            <td><input id="VrmsmV" oninput="Func(this.id)"></td>
+            <td><input id="VrmsdbmV" oninput="Func(this.id)"></td>
+            <td><input id="VrmsdbuV" oninput="Func(this.id)"></td>
+            <td><input id="PmW" oninput="Func(this.id)"></td>
+            <td><input id="Pdbm" oninput="Func(this.id)"></td>
+            <td></td>
+            <td><input id="Zohm" oninput="Func(this.id)" value="50"></td>
+        </tr>
+    </table>
+</body>
+
+</html>
