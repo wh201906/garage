@@ -33,36 +33,43 @@
             VrmsmV = document.getElementById("VrmsmV").value;
         }
         PmW = Math.pow(VrmsmV, 2) / z / 1000;
-        document.getElementById("VrmsmV").value = VrmsmV;
-        document.getElementById("VrmsdbmV").value = 20 * Math.log10(VrmsmV);
-        document.getElementById("VrmsdbuV").value = 20 * (Math.log10(VrmsmV) + 3);
-        document.getElementById("PmW").value = PmW;
-        document.getElementById("Pdbm").value = 10 * Math.log10(PmW);
+        if (id != "VrmsmV")
+            document.getElementById("VrmsmV").value = Number(VrmsmV).toFixed(7);
+        if (id != "VrmsdbmV")
+            document.getElementById("VrmsdbmV").value = Number(20 * Math.log10(VrmsmV)).toFixed(7);
+        if (id != "VrmsdbuV")
+            document.getElementById("VrmsdbuV").value = Number(20 * (Math.log10(VrmsmV) + 3)).toFixed(7);
+        if (id != "PmW")
+            document.getElementById("PmW").value = Number(PmW).toFixed(7);
+        if (id != "Pdbm")
+            document.getElementById("Pdbm").value = Number(10 * Math.log10(PmW)).toFixed(7);
     }
 </script>
 
 <body>
     <table border="1">
         <tr align="center">
-            <td colspan="7">Voltage&lt;---&gt;Power</td>
+            <td colspan="3">Voltage&lt;---&gt;Power</td>
         </tr>
         <tr align="center">
             <td>Vrms(mV)</td>
             <td>Vrms(dbmV)</td>
             <td>Vrms(dbuV)</td>
+        </tr>
+        <tr>
+            <td><input id="VrmsmV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VrmsdbmV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VrmsdbuV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+        </tr>
+        <tr align="center">
             <td>Power(mW)</td>
             <td>Power(dbm)</td>
-            <td width="10"></td>
             <td>Z(ohm)</td>
         </tr>
         <tr>
-            <td><input id="VrmsmV" oninput="Func(this.id)"></td>
-            <td><input id="VrmsdbmV" oninput="Func(this.id)"></td>
-            <td><input id="VrmsdbuV" oninput="Func(this.id)"></td>
-            <td><input id="PmW" oninput="Func(this.id)"></td>
-            <td><input id="Pdbm" oninput="Func(this.id)"></td>
-            <td></td>
-            <td><input id="Zohm" oninput="Func(this.id)" value="50"></td>
+            <td><input id="PmW" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Pdbm" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Zohm" oninput="Func(this.id)" value="50" size="15"></td>
         </tr>
     </table>
 </body>
