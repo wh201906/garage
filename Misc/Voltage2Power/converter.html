@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 </head>
 <script type="text/javascript">
-    function Func(id) {
+    function VPConv(id) {
         console.log(id);
         let z = document.getElementById("Zohm").value;
         let VrmsmV = 1.0, tmp = 0.0, PmW = 0.0;
@@ -44,6 +44,55 @@
         if (id != "Pdbm")
             document.getElementById("Pdbm").value = Number(10 * Math.log10(PmW)).toFixed(7);
     }
+
+    function PFLConv(id, factor) {
+        console.log(id, factor);
+        let period = 0.0, freq = 0.0, wav = 0.0;
+        if (id[0] == 'P') {
+            period = document.getElementById(id).value;
+            period = period * factor;
+            freq = 1 / period;
+            wav = 3e8 / freq;
+        }
+        else if (id[0] == 'f') {
+            freq = document.getElementById(id).value;
+            freq = freq * factor;
+            period = 1 / freq;
+            wav = 3e8 / freq;
+        }
+        else if (id.slice(0, 6) == 'lambda') {
+            wav = document.getElementById(id).value;
+            wav = wav * factor;
+            freq = 3e8 / wav;
+            period = 1 / freq;
+        }
+        console.log(period, freq, wav);
+        if (id != "Pns")
+            document.getElementById("Pns").value = Number(period / 1e-9).toFixed(12);
+        if (id != "Pus")
+            document.getElementById("Pus").value = Number(period / 1e-6).toFixed(12);
+        if (id != "Pms")
+            document.getElementById("Pms").value = Number(period / 1e-3).toFixed(12);
+        if (id != "Ps")
+            document.getElementById("Ps").value = Number(period / 1).toFixed(12);
+        if (id != "fGHz")
+            document.getElementById("fGHz").value = Number(freq / 1e9).toFixed(12);
+        if (id != "fMHz")
+            document.getElementById("fMHz").value = Number(freq / 1e6).toFixed(12);
+        if (id != "fkHz")
+            document.getElementById("fkHz").value = Number(freq / 1e3).toFixed(12);
+        if (id != "fHz")
+            document.getElementById("fHz").value = Number(freq / 1).toFixed(12);
+        if (id != "lambdanm")
+            document.getElementById("lambdanm").value = Number(wav / 1e-9).toFixed(12);
+        if (id != "lambdaum")
+            document.getElementById("lambdaum").value = Number(wav / 1e-6).toFixed(12);
+        if (id != "lambdamm")
+            document.getElementById("lambdamm").value = Number(wav / 1e-3).toFixed(12);
+        if (id != "lambdam")
+            document.getElementById("lambdam").value = Number(wav / 1).toFixed(12);
+
+    }
 </script>
 
 <body>
@@ -57,9 +106,9 @@
             <td>Vrms(dbuV)</td>
         </tr>
         <tr>
-            <td><input id="VrmsmV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="VrmsdbmV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="VrmsdbuV" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VrmsmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VrmsdbmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VrmsdbuV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
         </tr>
         <tr align="center">
             <td>Power(mW)</td>
@@ -67,9 +116,51 @@
             <td>Z(ohm)</td>
         </tr>
         <tr>
-            <td><input id="PmW" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="Pdbm" oninput="Func(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="Zohm" oninput="Func(this.id)" value="50" size="15"></td>
+            <td><input id="PmW" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Pdbm" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Zohm" oninput="VPConv(this.id)" value="50" size="15"></td>
+        </tr>
+    </table>
+    </br>
+    <table border="1">
+        <tr align="center">
+            <td colspan="4">Period&lt;---&gt;Frequency&lt;---&gt;Wavelength</td>
+        </tr>
+        <tr align="center">
+            <td>P(ns)</td>
+            <td>P(us)</td>
+            <td>P(ms)</td>
+            <td>P(s)</td>
+        </tr>
+        <tr>
+            <td><input id="Pns" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
+            <td><input id="Pus" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
+            <td><input id="Pms" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
+            <td><input id="Ps" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
+        </tr>
+        <tr align="center">
+            <td>f(GHz)</td>
+            <td>f(MHz)</td>
+            <td>f(kHz)</td>
+            <td>f(Hz)</td>
+        </tr>
+        <tr>
+            <td><input id="fGHz" oninput="PFLConv(this.id, 1e9)" placeholder="Input there..." size="15"></td>
+            <td><input id="fMHz" oninput="PFLConv(this.id, 1e6)" placeholder="Input there..." size="15"></td>
+            <td><input id="fkHz" oninput="PFLConv(this.id, 1e3)" placeholder="Input there..." size="15"></td>
+            <td><input id="fHz" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
+        </tr>
+        <tr align="center">
+            <td>λ(nm)</td>
+            <td>λ(um)</td>
+            <td>λ(mm)</td>
+            <td>λ(m)</td>
+        </tr>
+        <tr>
+            <td><input id="lambdanm" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
+            <td><input id="lambdaum" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
+            <td><input id="lambdamm" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
+            <td><input id="lambdam" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
         </tr>
     </table>
 </body>
