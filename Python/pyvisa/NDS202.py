@@ -2,6 +2,7 @@ import pyvisa
 from time import sleep
 from visadev import VisaDev
 
+
 class NDS202(VisaDev):
     def __init__(self, resource):
         super(NDS202, self).__init__(resource)
@@ -10,35 +11,41 @@ class NDS202(VisaDev):
         self.inst.timeout = 4000
         self.name = "NDS202"
 
+    # device.queryWithLen(): first 4 bytes indicates the length of the result
+    # device.query(): pyvisa.Resource.query()
+
     def queryWithLen(self, cmd):
         self.inst.write(cmd)
         len = int.from_bytes(self.inst.read_bytes(4), byteorder='little')
         data = self.inst.read_bytes(len)
         return data
 
+    def _measure_trim(self, str):
+        str = str[str.index(":") + 2:-2]
+        str = str.rstrip("?") # Vpp : 204.0mV?-> or Vpp : 204.0mV->
+        return str
+
     def measure_Vmax(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":MAX?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
-
 
     def measure_Vmin(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":MIN?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
 
-
     def measure_Vpp(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":PKPK?")
-        result = result[6:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
@@ -47,63 +54,59 @@ class NDS202(VisaDev):
 
     def measure_Vtop(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":VTOP?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
-
 
     def measure_Vbase(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":VBASe?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
-
 
     def measure_Vamp(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":VAMP?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
-
 
     def measure_Vave(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":AVERage?")
-        result = result[4:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
 
-# failed to read
-    # def measure_Vrms(self, ch=1):  # ch: 1 or 2, result in Volt
-    #     result = self.query(":MEASUrement:CH" + str(ch) + ":SQUAresum?")
-    #     result = result[3:-2]
-    #     print(result)
 
+# failed to read
+# def measure_Vrms(self, ch=1):  # ch: 1 or 2, result in Volt
+#     result = self.query(":MEASUrement:CH" + str(ch) + ":SQUAresum?")
+#     result = self._measure_trim(result)
+#     print(result)
 
     def measure_Vcyclerms(self, ch=1):  # ch: 1 or 2, result in Volt
         result = self.query(":MEASUrement:CH" + str(ch) + ":CYCRms?")
-        result = result[5:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'm':  # mV
             val = float(result[:-2]) * 0.001
         else:
             val = float(result[:-1])
         return val
 
-
     def measure_Freq(self, ch=1):  # ch: 1 or 2, result in Hz
         result = self.query(":MEASUrement:CH" + str(ch) + ":FREQuency?")
-        result = result[4:-2]
+        result = self._measure_trim(result)
         if result[-3] == 'M':  # MHz
             val = float(result[:-3]) / 0.000001
         elif result[-3] == 'k' or result[-3] == 'K':  # kHz
@@ -114,7 +117,7 @@ class NDS202(VisaDev):
 
     def measure_Period(self, ch=1):  # ch: 1 or 2, result in s
         result = self.query(":MEASUrement:CH" + str(ch) + ":PERiod?")
-        result = result[4:-2]
+        result = self._measure_trim(result)
         if result[-2] == 'p':  # ps
             val = float(result[:-2]) * 0.000000000001
         elif result[-2] == 'n':  # ns
@@ -127,80 +130,66 @@ class NDS202(VisaDev):
             val = float(result[:-1])
         return val
 
-    def gen_setCurrCH(self, ch=1): # ch: 1 or 2
-        device.write(":CHANnel CH" + str(ch))
+    def gen_setCurrCH(self, ch=1):  # ch: 1 or 2
+        self.write(":CHANnel CH" + str(ch))
 
     def gen_setCurrFreq(self, freq=1000):  # ch: 1 or 2, freq in Hz
-        device.write(":FUNCtion:FREQuency " + str(freq))
+        self.write(":FUNCtion:FREQuency " + str(freq))
+
+    def gen_getCurrFreq(self):
+        return float(self.query(":FUNCtion:FREQuency?")[:-2])
 
     def gen_setFreq(self, ch=1, freq=1000):
         self.gen_setCurrCH(ch)
         self.gen_setCurrFreq(freq)
 
     def gen_enableCH(self, ch=1):
-        device.write(":CHANnel:CH"+str(ch)+" ON")
+        self.write(":CHANnel:CH" + str(ch) + " ON")
 
     def gen_disableCH(self, ch=1):
-        device.write(":CHANnel:CH"+str(ch)+" OFF")
+        self.write(":CHANnel:CH" + str(ch) + " OFF")
 
     def gen_setCurrAmp(self, amp=1.5):  # ch: 1 or 2, amplitude in V
-        device.write(":FUNCtion:AMPLitude " + str(amp))
+        self.write(":FUNCtion:AMPLitude " + str(amp))
 
     def gen_setAmp(self, ch=1, amp=1.5):
         self.gen_setCurrCH(ch)
         self.gen_setCurrAmp(amp)
 
     def gen_setCurrOffset(self, offset=1.5):  # ch: 1 or 2, offset in V
-        device.write(":FUNCtion:OFFSet " + str(offset))
+        self.write(":FUNCtion:OFFSet " + str(offset))
 
     def gen_setOffset(self, ch=1, offset=1.5):
         self.gen_setCurrCH(ch)
         self.gen_setCurrOffset(offset)
 
     def gen_setCurrHLevel(self, level=1.5):  # ch: 1 or 2, highlevel in V
-        device.write(":FUNCtion:HIGH " + str(level))
+        self.write(":FUNCtion:HIGH " + str(level))
 
     def gen_setHLevel(self, ch=1, level=1.5):
         self.gen_setCurrCH(ch)
         self.gen_setCurrHLevel(level)
 
     def gen_setCurrLLevel(self, level=1.5):  # ch: 1 or 2, lowlevel in V
-        device.write(":FUNCtion:LOW " + str(level))
+        self.write(":FUNCtion:LOW " + str(level))
 
     def gen_setLLevel(self, ch=1, level=1.5):
         self.gen_setCurrCH(ch)
         self.gen_setCurrLLevel(level)
 
-# device.query(): first 4 bytes indicates the length of the result
-# device.inst.query(): pyvisa.Resource.query()
+if __name__ == '__main__':
 
-if __name__=='__main__':
-
-    visa_dll = "C:/Windows/System32/visa32.dll"
-
-    rm = pyvisa.ResourceManager(visa_dll)
-    cmd = ""
-    while cmd == "" or cmd == "r" or cmd == "refresh":
-        ip = input("Connect to(IP):")
-        cmd = ip.lower()
-    if (cmd == 'q' or cmd == 'e' or cmd == 'quit' or cmd == 'exit'):
-        print("Exited")
-        exit()
-    cmd = ""
-    while cmd == "" or cmd == "r" or cmd == "refresh":
-        port = input("Connect to(Port):")
-        cmd = port.lower()
-    if (cmd == 'q' or cmd == 'e' or cmd == 'quit' or cmd == 'exit'):
-        print("Exited")
-        exit()
-
-    device = rm.open_resource("TCPIP::" + ip + "::" + port + "::SOCKET")
+    device = VisaDev.openProc()
+    if device is None:
+        exit(0)
     device = NDS202(device)
 
     if device.check() is False:
         print('Error: This device is not ' + device.getName() + '?')
         device.close()
-        exit()
+        exit(0)
+    else:
+        print(device.getName() + " connected")
 
     # device.write(":AUTOset ON")
 
@@ -209,7 +198,8 @@ if __name__=='__main__':
     data = device.queryWithLen(":DATA:WAVE:SCREen:CH1?")
     lis = []
     for i in range(0, len(data), 2):
-        lis.append(int.from_bytes(data[i:i + 2], byteorder='little', signed=True))
+        lis.append(
+            int.from_bytes(data[i:i + 2], byteorder='little', signed=True))
     print(lis)
 
     print(device.measure_Vmax(1))
