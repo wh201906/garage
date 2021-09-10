@@ -51,6 +51,7 @@ class VisaDev():
     CONNECTTYPE_USB = 1
     CONNECTTYPE_ETHERNET = 2
     CONNECTTYPE_SOCKET = 3
+    NETWORK_TIMEOUT = 4000
 
     @staticmethod
     def openProc(type=0, addr=None, port=None):
@@ -82,6 +83,10 @@ class VisaDev():
         if type == VisaDev.CONNECTTYPE_USB:
             return rm.open_resource(str(addr))
         elif type == VisaDev.CONNECTTYPE_ETHERNET:
-            return rm.open_resource("TCPIP::" + str(addr))
+            dev = rm.open_resource("TCPIP::" + str(addr))
+            dev.timeout = VisaDev.NETWORK_TIMEOUT
+            return dev
         elif type == VisaDev.CONNECTTYPE_SOCKET:
-            return rm.open_resource("TCPIP::" + str(addr) + "::" + str(port) + "::SOCKET")
+            dev = rm.open_resource("TCPIP::" + str(addr) + "::" + str(port) + "::SOCKET")
+            dev.timeout = VisaDev.NETWORK_TIMEOUT
+            return dev

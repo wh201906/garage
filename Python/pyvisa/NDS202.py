@@ -1,5 +1,4 @@
 import pyvisa
-from time import sleep
 from visadev import VisaDev
 
 
@@ -8,7 +7,6 @@ class NDS202(VisaDev):
         super(NDS202, self).__init__(resource)
         self.inst.write_termination = '\n'
         self.inst.read_termination = '\n'
-        self.inst.timeout = 4000
         self.name = "NDS202"
 
     # device.queryWithLen(): first 4 bytes indicates the length of the result
