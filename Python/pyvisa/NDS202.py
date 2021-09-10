@@ -15,12 +15,12 @@ class NDS202(VisaDev):
     def queryWithLen(self, cmd):
         self.inst.write(cmd)
         len = int.from_bytes(self.inst.read_bytes(4), byteorder='little')
-        data = self.inst.read_bytes(len)
+        data = self.read_bytes(len)
         return data
 
     def _measure_trim(self, str):
         str = str[str.index(":") + 2:-2]
-        str = str.rstrip("?") # Vpp : 204.0mV?-> or Vpp : 204.0mV->
+        str = str.rstrip("?")  # Vpp : 204.0mV?-> or Vpp : 204.0mV->
         return str
 
     def measure_Vmax(self, ch=1):  # ch: 1 or 2, result in Volt

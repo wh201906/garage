@@ -17,13 +17,13 @@ result = {}
 
 device.gen_setCurrCH(1)
 device.gen_setAmp(1.5)
-sleep(2) # necessary
+sleep(2)  # necessary
 
 # around 1.15s per cycle, pretty slow
 for freq in range(10600000, 11000000, 10000):
-    device.gen_setCurrFreq(freq) # around 52ms
-    freq = device.gen_getCurrFreq() # around 0.4~0.6s
+    device.gen_setCurrFreq(freq)  # around 52ms
+    freq = device.gen_getCurrFreq()  # around 0.4~0.6s
     print(freq)
-    result[freq] = device.measure_Vpp() # around 0.5s
+    result[freq] = device.measure_Vpp()  # around 0.5s
 
 print(result)

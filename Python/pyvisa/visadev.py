@@ -8,6 +8,9 @@ class VisaDev():
         self.name = ""
 
     # exposed
+    def read_bytes(self, length):
+        return self.inst.read_bytes(length)
+
     def query(self, cmd):
         return self.inst.query(cmd)
 

@@ -1,28 +1,29 @@
 import pyvisa
+from visadev import VisaDev
 
-visa_dll = "C:/Windows/System32/visa32.dll"
-deviceName = "DSA815"
 
-rm = pyvisa.ResourceManager(visa_dll)
-cmd = ""
-while cmd == "" or cmd == "r" or cmd == "refresh":
-    print("Connected Devices:")
-    print(rm.list_resources())
-    port = input("Connect to:")
-    cmd = port.lower()
-if (cmd == 'q' or cmd == 'e' or cmd == 'quit' or cmd == 'exit'):
-    print("Exited")
-    exit()
-device = rm.open_resource(port)
+class DSA815(VisaDev):
+    def __init__(self, resource):
+        super(DSA815, self).__init__(resource)
+        self.name = "DSA815"
 
-info = device.query("*IDN?")
-print(info)
+    def setCenterFreq(self, freq):
+        self.write(":FREQ:CENT " + str(freq))
 
-if info.find(deviceName) == -1:
-    print('Error: This device is not ' + deviceName + '?')
+
+if __name__ == '__main__':
+    res = VisaDev.openProc()
+    if res is None:
+        exit(0)
+    device = DSA815(res)
+
+    if device.check() is False:
+        print('Error: This device is not ' + device.getName() + '?')
+        device.close()
+        exit(0)
+    else:
+        print(device.getName() + " connected")
+
+    device.setCenterFreq(1000000)
+
     device.close()
-    exit()
-
-device.write(":FREQ:CENT 1000000")
-
-device.close()

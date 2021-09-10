@@ -1,42 +1,41 @@
 import pyvisa
+from visadev import VisaDev
 
-visa_dll = "C:/Windows/System32/visa32.dll"
-deviceName = "DSA2522"
 
-rm = pyvisa.ResourceManager(visa_dll)
-cmd = ""
-while cmd == "" or cmd == "r" or cmd == "refresh":
-    print("Connected Devices:")
-    print(rm.list_resources())
-    port = input("Connect to:")
-    cmd = port.lower()
-if (cmd == 'q' or cmd == 'e' or cmd == 'quit' or cmd == 'exit'):
-    print("Exited")
-    exit()
-device = rm.open_resource(port)
+class DSA2522(VisaDev):
+    def __init__(self, resource):
+        super(DSA2522, self).__init__(resource)
+        self.name = "DSA2522"
 
-info = device.query("*IDN?")
-print(info)
 
-if info.find(deviceName) == -1:
-    print('Error: This device is not ' + deviceName + '?')
+if __name__ == '__main__':
+    res = VisaDev.openProc()
+    if res is None:
+        exit(0)
+    device = DSA2522(res)
+
+    if device.check() is False:
+        print('Error: This device is not ' + device.getName() + '?')
+        device.close()
+        exit(0)
+    else:
+        print(device.getName() + " connected")
+
+    device.write(':AUToset')
+
+    # Failed to read
+    # device.write(':WAV:BEG CH1')
+    # device.write(':WAV:PRE?')
+    # device.write(':WAV:RANG 0,10000')
+    # device.write(':WAV:FETC?')
+    # head = device.read_bytes(2)
+    # headLen = head[1] - ord('0')
+    # print(headLen)
+    # len = device.read_bytes(headLen)
+    # len = int(len)
+    # print(len)
+    # data = device.read_bytes(len)
+    # device.write(':WAV:END')
+    # print(data)
+
     device.close()
-    exit()
-
-# device.write(':AUToset')
-
-device.write(':WAV:BEG CH1')
-device.write(':WAV:PRE?')
-device.write(':WAV:RANG 0,10000')
-device.write(':WAV:FETC?')
-head = device.read_bytes(2)
-headLen = head[1] - ord('0')
-print(headLen)
-len = device.read_bytes(headLen)
-len = int(len)
-print(len)
-data = device.read_bytes(len)
-device.write(':WAV:END')
-print(data)
-
-device.close()
