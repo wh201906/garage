@@ -1,6 +1,6 @@
 import pyvisa
 from visadev import VisaDev
-from time import time, sleep
+from time import time
 
 
 class DG822(VisaDev):
@@ -11,7 +11,6 @@ class DG822(VisaDev):
     def getFreq(self, ch=1):
         return float(device.query(':SOUR' + str(ch) + ':FREQ?'))
 
-    # 50~70ms when1 waitFinished=True, 30~40ms when waitFinished=False
     # "*OPC" doesn't work as expected
     def setFreq(self, ch=1, freq=1000, waitFinished=True):
         device.write(':SOUR' + str(ch) + ':FREQ ' + str(freq))
@@ -38,13 +37,13 @@ if __name__ == '__main__':
         print(device.getName() + " connected")
 
     t1 = time()
-    for i in range(10, 3000, 10):
+    for i in range(10, 30000, 10):
         device.setFreq_check(1, i)
-        sleep(0.0001)
+        device.delay_ns(300000)
         # sleep is necessary there, otherwise the time can be much longer(4.7s->25s)
         # A FIFO might be in the communication path, if the FIFO is always full, 
         # the PC or the DG822 might take extra instructions to handle this situration.
-        
+
         # print(device.getFreq(1))
     t2 = time()
     print(t2 - t1)

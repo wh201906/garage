@@ -177,10 +177,10 @@ class NDS202(VisaDev):
 
 if __name__ == '__main__':
 
-    device = VisaDev.openProc()
-    if device is None:
+    res = VisaDev.openProc()
+    if res is None:
         exit(0)
-    device = NDS202(device)
+    device = NDS202(res)
 
     if device.check() is False:
         print('Error: This device is not ' + device.getName() + '?')

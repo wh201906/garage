@@ -1,4 +1,5 @@
 import pyvisa
+from time import perf_counter_ns
 
 class VisaDev():
 
@@ -90,3 +91,11 @@ class VisaDev():
             dev = rm.open_resource("TCPIP::" + str(addr) + "::" + str(port) + "::SOCKET")
             dev.timeout = VisaDev.NETWORK_TIMEOUT
             return dev
+
+    # busy waiting, high precision
+    @staticmethod
+    def delay_ns(ns):
+        start = perf_counter_ns()
+        while(perf_counter_ns()-start <= ns):
+            pass
+        
