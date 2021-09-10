@@ -12,10 +12,11 @@ class DG822(VisaDev):
         return float(device.query(':SOUR' + str(ch) + ':FREQ?'))
 
     # "*OPC" doesn't work as expected
+    # "*OPC?" will work
     def setFreq(self, ch=1, freq=1000, waitFinished=True):
         device.write(':SOUR' + str(ch) + ':FREQ ' + str(freq))
         if waitFinished:
-            device.write("*OPC")
+            return device.query("*OPC?")
 
     def setFreq_check(self, ch=1, freq=1000):
         self.setFreq(ch, freq)
@@ -38,7 +39,7 @@ if __name__ == '__main__':
 
     t1 = time()
     for i in range(10, 30000, 10):
-        device.setFreq_check(1, i)
+        device.setFreq(1, i)
         device.delay_ns(300000)
         # sleep is necessary there, otherwise the time can be much longer(4.7s->25s)
         # A FIFO might be in the communication path, if the FIFO is always full,
