@@ -1,8 +1,8 @@
 import pyvisa
 from time import perf_counter_ns
 
-class VisaDev():
 
+class VisaDev():
     def __init__(self, resource):
         self.inst = resource
         self.name = ""
@@ -27,12 +27,12 @@ class VisaDev():
     def getName(self):
         return self.name
 
-    def readAll(self): # read until timeout
+    def readAll(self):  # read until timeout
         data = bytearray()
         while True:
             try:
                 data += self.inst.read_bytes(1)
-            except pyvisa.errors.VisaIOError: # usually cause by timeout
+            except pyvisa.errors.VisaIOError:  # usually cause by timeout
                 break
         return data
 
@@ -44,7 +44,8 @@ class VisaDev():
         while userInput_Lower == "" or userInput_Lower == "r" or userInput_Lower == "refresh":
             userInput = input(text)
             userInput_Lower = userInput.lower()
-        if (userInput_Lower == 'q' or userInput_Lower == 'e' or userInput_Lower == 'quit' or userInput_Lower == 'exit'):
+        if (userInput_Lower == 'q' or userInput_Lower == 'e'
+                or userInput_Lower == 'quit' or userInput_Lower == 'exit'):
             return None
         else:
             return userInput
@@ -60,8 +61,9 @@ class VisaDev():
 
         rm = pyvisa.ResourceManager(visa_dll)
 
-        while int(type) not in range(1,4):
-            type = VisaDev.inputProc("Connection type(1:USB 2:Ethernet 3:SOCKET):\n")
+        while int(type) not in range(1, 4):
+            type = VisaDev.inputProc(
+                "Connection type(1:USB 2:Ethernet 3:SOCKET):\n")
             if type is None:
                 return None
         type = int(type)
@@ -88,7 +90,8 @@ class VisaDev():
             dev.timeout = VisaDev.NETWORK_TIMEOUT
             return dev
         elif type == VisaDev.CONNECTTYPE_SOCKET:
-            dev = rm.open_resource("TCPIP::" + str(addr) + "::" + str(port) + "::SOCKET")
+            dev = rm.open_resource("TCPIP::" + str(addr) + "::" + str(port) +
+                                   "::SOCKET")
             dev.timeout = VisaDev.NETWORK_TIMEOUT
             return dev
 
@@ -96,6 +99,5 @@ class VisaDev():
     @staticmethod
     def delay_ns(ns):
         start = perf_counter_ns()
-        while(perf_counter_ns()-start <= ns):
+        while (perf_counter_ns() - start <= ns):
             pass
-        

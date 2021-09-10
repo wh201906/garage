@@ -41,7 +41,7 @@ if __name__ == '__main__':
         device.setFreq_check(1, i)
         device.delay_ns(300000)
         # sleep is necessary there, otherwise the time can be much longer(4.7s->25s)
-        # A FIFO might be in the communication path, if the FIFO is always full, 
+        # A FIFO might be in the communication path, if the FIFO is always full,
         # the PC or the DG822 might take extra instructions to handle this situration.
 
         # print(device.getFreq(1))
