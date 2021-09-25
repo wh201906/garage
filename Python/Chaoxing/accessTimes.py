@@ -17,6 +17,7 @@ from secret import *
 # videoXPath
 statisticXPath = '/html/body/div[4]/div/div/div[2]/ul/li[3]/a'
 tableXPath = '/html/body/div[3]/div/div[2]/div/table'
+backToOldXPath = '/html/body/div[1]/div[1]/div/a'
 waitTime = 4
 usingFastMode = True
 
@@ -83,12 +84,21 @@ def gotoCourse():
             sleep(random.random() * 2 + 0.5)
             url = courseUrl
         driver.get(url)
+        driver.implicitly_wait(10)
+
+        try:
+            locator = (By.XPATH, backToOldXPath)
+            WD.until(EC.presence_of_element_located(locator))
+            driver.find_element_by_xpath(backToOldXPath).click()
+            driver.implicitly_wait(10)
+        except:
+            pass
     except:
         return False
 
 
 def task():
-    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl
+    global driver, cookie, WD, courseUrl, chapterUrl, statisticUrl, chapterXPath
 
     gotoCourse()
 
@@ -165,7 +175,7 @@ startTime = time()
 print("Task start at ", end='')
 print(strftime("%Y-%m-%d %H:%M:%S", localtime(startTime)))
 
-for i in range(200):
+for i in range(890):
     taskTime = time()
     task()
     print("Counts:", i + 1, end=', ')
