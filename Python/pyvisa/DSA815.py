@@ -12,16 +12,16 @@ class DSA815(VisaDev):
         self.write(":FREQ:CENT " + str(freq))
 
     def trace_get(self):
-        byteorder = device.query(":FORM:BORD?").lower()
+        byteorder = self.query(":FORM:BORD?").lower()
         if "norm" in byteorder:
             byteorder = "<"
         else:
             byteorder = ">"
-        device.write(":FORM REAL")
-        device.write(":TRAC? TRACE1")
-        len = device.read_bytes(11)
+        self.write(":FORM REAL")
+        self.write(":TRAC? TRACE1")
+        len = self.read_bytes(11)
         len = int(len[-9:])
-        data = device.read_bytes(len)
+        data = self.read_bytes(len)
         fmt = byteorder + "f" * (len // 4)
         return unpack(fmt, data)
 
