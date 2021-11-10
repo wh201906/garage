@@ -15,8 +15,12 @@ def waitReady(port):
         buf = port.read_all()
         if buf == b'':
             continue
-        else:
-            break
+        elif b'e' in buf:
+            return 'err'
+        elif b'o' in buf:
+            return 'ok'
+        elif b'p' in buf:
+            return 'par'
 
 
 def getDevice():
@@ -28,26 +32,30 @@ def getDevice():
 
 
 def process(device, port, freq, times):
-    # device.setCenterFreq(freq)
+    device.setCenterFreq(freq)
     device.write("*WAI")
 
     val = freq / 20000
     port.write(bytes(str(val) + '\n', 'utf-8'))
-    waitReady(port)
-
-    print("now at: ", freq)
+    result = waitReady(port)
+    if result == 'err':
+        print("fully unlocked at:", freq)
+    elif result == 'par':
+        print("partially unlocked at:", freq)
     for i in range(times):
         device.write(":INIT")
+        # sleep(1.5)
         device.write("*WAI")
+        device.query("*OPC?")
         # print(device.trace_get())
-        print(i + 1)
+        # print(i + 1)
 
 
 try:
-    port = serial.Serial("COM9", 115200)
+    port = serial.Serial("COM10", 115200)
     device = getDevice()
     device.timeout = 5000
-    device.write(":INIT:CONT 0") # single mode
+    device.write(":INIT:CONT 0")  # single mode
 
     for freq in range(int(87e6), int(109e6 + 20000), int(1e5)):
         process(device, port, freq, 1)
