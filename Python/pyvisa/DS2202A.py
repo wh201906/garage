@@ -25,6 +25,15 @@ class DS2202A(VisaDev):
     def time_setScale(self, scale):
         device.write(":TIM:SCAL " + str(scale))
 
+    def measure_Vpp(self):
+        return float(self.query(":MEAS:VPP? CHAN1"))
+    
+    def measure_freq(self):
+        return float(self.query(":MEAS:FREQ? CHAN1"))
+
+    def measure_freqHW(self):
+        return float(self.query(":MEAS:COUN:VAL?"))
+
 
 if __name__ == '__main__':
     res = VisaDev.openProc(1, 'USB0::0x1AB1::0x04B0::DS2G162350046::INSTR')

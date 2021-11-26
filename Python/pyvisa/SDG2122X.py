@@ -9,10 +9,10 @@ class SDG2122X(VisaDev):
         self.name = "SDG2122X"
 
     def getParameters(self, ch=1):
-        return device.query('C' + str(ch) + ':BSWV?')
+        return self.query('C' + str(ch) + ':BSWV?')
 
     def setFreq(self, ch=1, freq=1000):
-        device.write('C' + str(ch) + ':BSWV FRQ,' + str(freq))
+        self.write('C' + str(ch) + ':BSWV FRQ,' + str(freq))
 
 
 if __name__ == '__main__':
