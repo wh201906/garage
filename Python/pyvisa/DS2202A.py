@@ -34,6 +34,13 @@ class DS2202A(VisaDev):
     def measure_freqHW(self):
         return float(self.query(":MEAS:COUN:VAL?"))
 
+    def display_getScreen(self):
+        self.write(":DISP:DATA?")
+        length = self.read_bytes(11)
+        length = int(length[-9:])
+        data = self.read_bytes(length)
+        return data
+
 
 if __name__ == '__main__':
     res = VisaDev.openProc(1, 'USB0::0x1AB1::0x04B0::DS2G162350046::INSTR')
