@@ -29,12 +29,14 @@ private slots:
     void output(const QString &msg);
 
     void removeTable(int index);
+    void on_query_execButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     QSqlDatabase database;
 
-    QSqlTableModel *studentModel;
+    QSqlQueryModel *queryModel;
 
     void createTables();
 };

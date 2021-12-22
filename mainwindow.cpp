@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     database = QSqlDatabase::addDatabase("QODBC");
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(0, 3); // tabWidget
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(1, 1); // stateEdit
+    queryModel = new QSqlQueryModel;
+    ui->query_queryView->setModel(queryModel);
 }
 
 MainWindow::~MainWindow()
@@ -55,8 +57,8 @@ void MainWindow::on_conn_closeButton_clicked()
     {
         int num = ui->tabWidget->count();
         database.close();
-        for(int i = 1; i < num; i++)
-            removeTable(1); //always remove the second tab
+        for(int i = 2; i < num; i++)
+            removeTable(2); //always remove the third tab
         output("Database closed.");
     }
     else
@@ -103,3 +105,19 @@ void MainWindow::removeTable(int index)
         ui->tabWidget->removeTab(index);
     }
 }
+
+void MainWindow::on_query_execButton_clicked()
+{
+    QSqlError err;
+    queryModel->setQuery(ui->query_queryEdit->toPlainText());
+    err = queryModel->lastError();
+    if(err.isValid())
+    {
+        output("Error:" + err.text());
+    }
+    else
+    {
+        output("Query executed");
+    }
+}
+
