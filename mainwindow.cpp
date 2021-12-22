@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
     database = QSqlDatabase::addDatabase("QODBC");
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(0, 3); // tabWidget
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(1, 1); // stateEdit
+
+    studentModel = new QSqlTableModel(this, database);
+    studentModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
 MainWindow::~MainWindow()
@@ -31,6 +34,8 @@ void MainWindow::on_conn_openButton_clicked()
     if(database.open())
     {
         output("Database opened.");
+        qDebug() << database.tables();
+        studentModel->setTable("Student");
     }
     else
     {
@@ -65,5 +70,42 @@ void MainWindow::on_conn_showPasswordBox_clicked(bool checked)
         ui->conn_passwordEdit->setEchoMode(QLineEdit::Normal);
     else
         ui->conn_passwordEdit->setEchoMode(QLineEdit::Password);
+}
+
+
+void MainWindow::on_student_loadButton_clicked()
+{
+    studentModel->select();
+    ui->student_tableView->setModel(studentModel);
+}
+
+
+void MainWindow::on_student_addButton_clicked()
+{
+    studentModel->insertRow(studentModel->rowCount());
+}
+
+
+void MainWindow::on_student_revertButton_clicked()
+{
+    studentModel->revertAll();
+}
+
+
+void MainWindow::on_student_submitButton_clicked()
+{
+    output("Submitting...");
+    database.transaction();
+    if(studentModel->submitAll())
+    {
+        database.commit();
+        output("Submitted");
+    }
+    else
+    {
+        database.rollback();
+        output("Failed to submit!");
+        output("Error:" + studentModel->lastError().text());
+    }
 }
 
