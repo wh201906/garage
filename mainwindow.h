@@ -26,20 +26,16 @@ private slots:
 
     void on_conn_showPasswordBox_clicked(bool checked);
 
-    void on_student_loadButton_clicked();
+    void output(const QString &msg);
 
-    void on_student_addButton_clicked();
-
-    void on_student_revertButton_clicked();
-
-    void on_student_submitButton_clicked();
-
+    void removeTable(int index);
 private:
     Ui::MainWindow *ui;
 
     QSqlDatabase database;
 
     QSqlTableModel *studentModel;
-    void output(const QString &msg);
+
+    void createTables();
 };
 #endif // MAINWINDOW_H

@@ -1,6 +1,8 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "sqldatawidget.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -9,9 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
     database = QSqlDatabase::addDatabase("QODBC");
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(0, 3); // tabWidget
     ((QVBoxLayout*)ui->centralwidget->layout())->setStretch(1, 1); // stateEdit
-
-    studentModel = new QSqlTableModel(this, database);
-    studentModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
 MainWindow::~MainWindow()
@@ -22,6 +21,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_conn_openButton_clicked()
 {
     QString dsn;
+    if(database.isOpen())
+    {
+        output("Database is already opened.");
+        return;
+    }
     // setHostname() and setPort doesn't work
 
     dsn += "Driver={SQL Server};";
@@ -34,8 +38,8 @@ void MainWindow::on_conn_openButton_clicked()
     if(database.open())
     {
         output("Database opened.");
-        qDebug() << database.tables();
-        studentModel->setTable("Student");
+        createTables();
+
     }
     else
     {
@@ -49,7 +53,10 @@ void MainWindow::on_conn_closeButton_clicked()
 
     if(database.isOpen())
     {
+        int num = ui->tabWidget->count();
         database.close();
+        for(int i = 1; i < num; i++)
+            removeTable(1); //always remove the second tab
         output("Database closed.");
     }
     else
@@ -72,40 +79,27 @@ void MainWindow::on_conn_showPasswordBox_clicked(bool checked)
         ui->conn_passwordEdit->setEchoMode(QLineEdit::Password);
 }
 
-
-void MainWindow::on_student_loadButton_clicked()
+void MainWindow::createTables()
 {
-    studentModel->select();
-    ui->student_tableView->setModel(studentModel);
-}
-
-
-void MainWindow::on_student_addButton_clicked()
-{
-    studentModel->insertRow(studentModel->rowCount());
-}
-
-
-void MainWindow::on_student_revertButton_clicked()
-{
-    studentModel->revertAll();
-}
-
-
-void MainWindow::on_student_submitButton_clicked()
-{
-    output("Submitting...");
-    database.transaction();
-    if(studentModel->submitAll())
+    QStringList tableList = database.tables();
+    for(auto it = tableList.begin(); it != tableList.end(); it++)
     {
-        database.commit();
-        output("Submitted");
-    }
-    else
-    {
-        database.rollback();
-        output("Failed to submit!");
-        output("Error:" + studentModel->lastError().text());
+        SqlDataWidget* w = new SqlDataWidget;
+        connect(w, &SqlDataWidget::newOutput, this, &MainWindow::output);
+        w->setDatabase(&database);
+        w->setTable(*it);
+        w->on_loadButton_clicked();
+        ui->tabWidget->addTab(w, *it);
     }
 }
 
+void MainWindow::removeTable(int index)
+{
+    QWidget* w;
+    w = ui->tabWidget->widget(index);
+    if(w != nullptr)
+    {
+        delete w;
+        ui->tabWidget->removeTab(index);
+    }
+}
