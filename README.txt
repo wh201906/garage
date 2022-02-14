@@ -1,0 +1,1 @@
+A generic interface to access any database on MS SQL Server
