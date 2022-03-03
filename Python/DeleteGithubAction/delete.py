@@ -1,24 +1,50 @@
+import grequests
 import requests
 import secrets as s
+from time import perf_counter
+
+# secrets.py
+# username = "xxxx"
+# repo = "xxxx"
+# token = "xxxx"
+
+startTime = perf_counter()
+
+def timer():
+    return "{:>10.4f}".format(perf_counter() - startTime)
+
+userInput = str(input("Only delete successful runs?(Y/n):")).lower()
 
 # get workflow runs
-url = "https://api.github.com/repos/" + s.username + "/" + s.repo + "/actions/runs?per_page=100&status=success"
+url = "https://api.github.com/repos/" + s.username + "/" + s.repo + "/actions/runs?per_page=100"
+if "y" in userInput:
+    url += "&status=success"
 idList = []
 r = requests.get(url).json()
 count = r["total_count"]
-print("Count:", count)
+print(timer(), "Count:", count)
+urlList = []
 for i in range(1, count // 100 + 2):
-    r = requests.get(url + "&page=" + str(i)).json()
+    urlList.append(url + "&page=" + str(i))
+resultList = grequests.map((grequests.get(u) for u in urlList))
+for i in resultList:
+    r = i.json()
     r = r["workflow_runs"]
     for runs in r:
         idList.append(runs["id"])
-print("Actural Count:", len(idList))
+print(timer(), "Actural Count:", len(idList))
+idList.reverse()  # delete old runs first
 
 # delete
-print("Deleting...")
+print(timer(), "Deleting...")
 header = {"Authorization": "token " + s.token}
 url = "https://api.github.com/repos/" + s.username + "/" + s.repo + "/actions/runs/"
-for runId in idList:
-    requests.delete(url + str(runId), headers=header)
+urlList = []
+for idx, runId in enumerate(idList):
+    urlList.append(url + str(runId))
+    if (idx + 1) % 10 == 0:
+        grequests.map((grequests.delete(u, headers=header) for u in urlList))
+        print(timer(), str(idx + 1) + " runs was deleted.")
+        urlList = []
 
-print("Finished")
+print(timer(), "Finished")
