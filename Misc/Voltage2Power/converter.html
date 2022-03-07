@@ -7,91 +7,114 @@
 <script type="text/javascript">
     function VPConv(id) {
         console.log(id);
-        let z = document.getElementById("Zohm").value;
+        let z = document.getElementById("VP_Zohm").value;
         let VrmsmV = 1.0, tmp = 0.0, PmW = 0.0;
-        if (id == "VrmsmV") {
-            VrmsmV = document.getElementById("VrmsmV").value;
+        if (id == "VP_VrmsmV") {
+            VrmsmV = document.getElementById("VP_VrmsmV").value;
         }
-        else if (id == "VrmsdbmV") {
-            tmp = document.getElementById("VrmsdbmV").value;
+        else if (id == "VP_VrmsdbmV") {
+            tmp = document.getElementById("VP_VrmsdbmV").value;
             VrmsmV = Math.pow(10, tmp / 20);
         }
-        else if (id == "VrmsdbuV") {
-            tmp = document.getElementById("VrmsdbuV").value;
+        else if (id == "VP_VrmsdbuV") {
+            tmp = document.getElementById("VP_VrmsdbuV").value;
             VrmsmV = Math.pow(10, tmp / 20 - 3);
         }
-        else if (id == "PmW") {
-            tmp = document.getElementById("PmW").value;
+        else if (id == "VP_PmW") {
+            tmp = document.getElementById("VP_PmW").value;
             VrmsmV = Math.sqrt(tmp * 1000 * z);
         }
-        else if (id == "Pdbm") {
-            tmp = document.getElementById("Pdbm").value;
+        else if (id == "VP_Pdbm") {
+            tmp = document.getElementById("VP_Pdbm").value;
             tmp = Math.pow(10, tmp / 10)
             VrmsmV = Math.sqrt(tmp * 1000 * z);
         }
-        else if (id == "Zohm") {
-            VrmsmV = document.getElementById("VrmsmV").value;
+        else if (id == "VP_Zohm") {
+            VrmsmV = document.getElementById("VP_VrmsmV").value;
         }
         PmW = Math.pow(VrmsmV, 2) / z / 1000;
-        if (id != "VrmsmV")
-            document.getElementById("VrmsmV").value = Number(VrmsmV).toFixed(7);
-        if (id != "VrmsdbmV")
-            document.getElementById("VrmsdbmV").value = Number(20 * Math.log10(VrmsmV)).toFixed(7);
-        if (id != "VrmsdbuV")
-            document.getElementById("VrmsdbuV").value = Number(20 * (Math.log10(VrmsmV) + 3)).toFixed(7);
-        if (id != "PmW")
-            document.getElementById("PmW").value = Number(PmW).toFixed(7);
-        if (id != "Pdbm")
-            document.getElementById("Pdbm").value = Number(10 * Math.log10(PmW)).toFixed(7);
+        if (id != "VP_VrmsmV")
+            document.getElementById("VP_VrmsmV").value = Number(VrmsmV).toFixed(7);
+        if (id != "VP_VrmsdbmV")
+            document.getElementById("VP_VrmsdbmV").value = Number(20 * Math.log10(VrmsmV)).toFixed(7);
+        if (id != "VP_VrmsdbuV")
+            document.getElementById("VP_VrmsdbuV").value = Number(20 * (Math.log10(VrmsmV) + 3)).toFixed(7);
+        if (id != "VP_PmW")
+            document.getElementById("VP_PmW").value = Number(PmW).toFixed(7);
+        if (id != "VP_Pdbm")
+            document.getElementById("VP_Pdbm").value = Number(10 * Math.log10(PmW)).toFixed(7);
     }
 
     function PFLConv(id, factor) {
         console.log(id, factor);
         let period = 0.0, freq = 0.0, wav = 0.0;
-        if (id[0] == 'P') {
+        if (id[4] == 'P') {
             period = document.getElementById(id).value;
             period = period * factor;
             freq = 1 / period;
             wav = 3e8 / freq;
         }
-        else if (id[0] == 'f') {
+        else if (id[4] == 'f') {
             freq = document.getElementById(id).value;
             freq = freq * factor;
             period = 1 / freq;
             wav = 3e8 / freq;
         }
-        else if (id.slice(0, 6) == 'lambda') {
+        else if (id.slice(4, 10) == 'lambda') {
             wav = document.getElementById(id).value;
             wav = wav * factor;
             freq = 3e8 / wav;
             period = 1 / freq;
         }
         console.log(period, freq, wav);
-        if (id != "Pns")
-            document.getElementById("Pns").value = Number(period / 1e-9).toFixed(12);
-        if (id != "Pus")
-            document.getElementById("Pus").value = Number(period / 1e-6).toFixed(12);
-        if (id != "Pms")
-            document.getElementById("Pms").value = Number(period / 1e-3).toFixed(12);
-        if (id != "Ps")
-            document.getElementById("Ps").value = Number(period / 1).toFixed(12);
-        if (id != "fGHz")
-            document.getElementById("fGHz").value = Number(freq / 1e9).toFixed(12);
-        if (id != "fMHz")
-            document.getElementById("fMHz").value = Number(freq / 1e6).toFixed(12);
-        if (id != "fkHz")
-            document.getElementById("fkHz").value = Number(freq / 1e3).toFixed(12);
-        if (id != "fHz")
-            document.getElementById("fHz").value = Number(freq / 1).toFixed(12);
-        if (id != "lambdanm")
-            document.getElementById("lambdanm").value = Number(wav / 1e-9).toFixed(12);
-        if (id != "lambdaum")
-            document.getElementById("lambdaum").value = Number(wav / 1e-6).toFixed(12);
-        if (id != "lambdamm")
-            document.getElementById("lambdamm").value = Number(wav / 1e-3).toFixed(12);
-        if (id != "lambdam")
-            document.getElementById("lambdam").value = Number(wav / 1).toFixed(12);
+        if (id != "PFL_Pns")
+            document.getElementById("PFL_Pns").value = Number(period / 1e-9).toFixed(12);
+        if (id != "PFL_Pus")
+            document.getElementById("PFL_Pus").value = Number(period / 1e-6).toFixed(12);
+        if (id != "PFL_Pms")
+            document.getElementById("PFL_Pms").value = Number(period / 1e-3).toFixed(12);
+        if (id != "PFL_Ps")
+            document.getElementById("PFL_Ps").value = Number(period / 1).toFixed(12);
+        if (id != "PFL_fGHz")
+            document.getElementById("PFL_fGHz").value = Number(freq / 1e9).toFixed(12);
+        if (id != "PFL_fMHz")
+            document.getElementById("PFL_fMHz").value = Number(freq / 1e6).toFixed(12);
+        if (id != "PFL_fkHz")
+            document.getElementById("PFL_fkHz").value = Number(freq / 1e3).toFixed(12);
+        if (id != "PFL_fHz")
+            document.getElementById("PFL_fHz").value = Number(freq / 1).toFixed(12);
+        if (id != "PFL_lambdanm")
+            document.getElementById("PFL_lambdanm").value = Number(wav / 1e-9).toFixed(12);
+        if (id != "PFL_lambdaum")
+            document.getElementById("PFL_lambdaum").value = Number(wav / 1e-6).toFixed(12);
+        if (id != "PFL_lambdamm")
+            document.getElementById("PFL_lambdamm").value = Number(wav / 1e-3).toFixed(12);
+        if (id != "PFL_lambdam")
+            document.getElementById("PFL_lambdam").value = Number(wav / 1).toFixed(12);
+    }
 
+    function ZCalc(id) {
+        let tmp = 0.0;
+        fHz = document.getElementById("Z_fHz").value;
+        Rohm = document.getElementById("Z_Rohm").value;
+        if (id == "Z_XLohm") {
+            tmp = document.getElementById("Z_XLohm").value;
+            LuH = tmp * 1e6 / 2 / Math.PI / fHz;
+            document.getElementById("Z_LuH").value = LuH;
+        }
+        else {
+            LuH = document.getElementById("Z_LuH").value;
+            document.getElementById("Z_XLohm").value = Number(2 * Math.PI * fHz * LuH * 1e-6).toFixed(12);
+        }
+        if (id == "Z_XCohm") {
+            tmp = document.getElementById("Z_XCohm").value;
+            CpF = 1e12 / 2 / Math.PI / fHz / tmp;
+            document.getElementById("Z_CpF").value = CpF;
+        }
+        else {
+            CpF = document.getElementById("Z_CpF").value;
+            document.getElementById("Z_XCohm").value = Number(1e12 / 2 / Math.PI / fHz / CpF).toFixed(12);
+        }
     }
 </script>
 
@@ -106,9 +129,9 @@
             <td>Vrms(dbuV)</td>
         </tr>
         <tr>
-            <td><input id="VrmsmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="VrmsdbmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="VrmsdbuV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VP_VrmsmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VP_VrmsdbmV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VP_VrmsdbuV" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
         </tr>
         <tr align="center">
             <td>Power(mW)</td>
@@ -116,9 +139,9 @@
             <td>Z(ohm)</td>
         </tr>
         <tr>
-            <td><input id="PmW" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="Pdbm" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
-            <td><input id="Zohm" oninput="VPConv(this.id)" value="50" size="15"></td>
+            <td><input id="VP_PmW" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VP_Pdbm" oninput="VPConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="VP_Zohm" oninput="VPConv(this.id)" value="50" size="15"></td>
         </tr>
     </table>
     </br>
@@ -133,10 +156,10 @@
             <td>P(s)</td>
         </tr>
         <tr>
-            <td><input id="Pns" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
-            <td><input id="Pus" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
-            <td><input id="Pms" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
-            <td><input id="Ps" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_Pns" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_Pus" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_Pms" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_Ps" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
         </tr>
         <tr align="center">
             <td>f(GHz)</td>
@@ -145,10 +168,10 @@
             <td>f(Hz)</td>
         </tr>
         <tr>
-            <td><input id="fGHz" oninput="PFLConv(this.id, 1e9)" placeholder="Input there..." size="15"></td>
-            <td><input id="fMHz" oninput="PFLConv(this.id, 1e6)" placeholder="Input there..." size="15"></td>
-            <td><input id="fkHz" oninput="PFLConv(this.id, 1e3)" placeholder="Input there..." size="15"></td>
-            <td><input id="fHz" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_fGHz" oninput="PFLConv(this.id, 1e9)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_fMHz" oninput="PFLConv(this.id, 1e6)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_fkHz" oninput="PFLConv(this.id, 1e3)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_fHz" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
         </tr>
         <tr align="center">
             <td>λ(nm)</td>
@@ -157,12 +180,44 @@
             <td>λ(m)</td>
         </tr>
         <tr>
-            <td><input id="lambdanm" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
-            <td><input id="lambdaum" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
-            <td><input id="lambdamm" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
-            <td><input id="lambdam" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_lambdanm" oninput="PFLConv(this.id, 1e-9)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_lambdaum" oninput="PFLConv(this.id, 1e-6)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_lambdamm" oninput="PFLConv(this.id, 1e-3)" placeholder="Input there..." size="15"></td>
+            <td><input id="PFL_lambdam" oninput="PFLConv(this.id, 1)" placeholder="Input there..." size="15"></td>
         </tr>
     </table>
+    </br>
+    <table border="1">
+        <tr align="center">
+            <td colspan="4">Impedance</td>
+        </tr>
+        <tr align="center">
+            <td>f(Hz)</td>
+            <td>R(ohm)</td>
+            <td>L(uH)</td>
+            <td>C(pF)</td>
+        </tr>
+        <tr>
+            <td><input id="Z_fHz" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Z_Rohm" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Z_LuH" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Z_CpF" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+        </tr>
+        <tr align="center">
+            <td></td>
+            <td></td>
+            <td>XL(ohm)</td>
+            <td>XC(ohm)</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td><input id="Z_XLohm" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Z_XCohm" oninput="ZCalc(this.id)" placeholder="Input there..." size="15"></td>
+        </tr>
+    </table>
+    <p>1H=1e6uH 1mH=1e3uH 1nH=1e-3uH</p>
+    <p>1mF=1e9pF 1uF=1e6pF 1nF=1e3pF</p>
 </body>
 
 </html>
