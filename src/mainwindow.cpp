@@ -3,6 +3,11 @@
 
 #include "procutil.h"
 
+#include <QFileDialog>
+#include <QFile>
+#include <QDebug>
+#include <QMessageBox>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -22,7 +27,9 @@ void MainWindow::on_Proc_updateButton_clicked()
     ui->Proc_procWidget->setRowCount(procList.size());
     for(int i = 0; i < procList.size(); i++)
     {
-        ui->Proc_procWidget->setItem(i, 0, new QTableWidgetItem(QString::number(procList[i].PID)));
+        auto tmp = new QTableWidgetItem;
+        tmp->setData(Qt::EditRole, procList[i].PID); // for sort
+        ui->Proc_procWidget->setItem(i, 0, tmp);
         ui->Proc_procWidget->setItem(i, 1, new QTableWidgetItem(procList[i].name));
     }
     applyProcFilter();
@@ -88,9 +95,14 @@ void MainWindow::updateModuleList(quint32 PID)
 
 }
 
+bool MainWindow::isModInvalid()
+{
+    return (ui->Mod_modWidget->count() == 1 && !ui->Mod_modWidget->item(0)->flags().testFlag(Qt::ItemIsUserCheckable));
+}
+
 void MainWindow::on_Mod_allBox_clicked(bool checked)
 {
-    if(ui->Mod_modWidget->count() == 1 && !ui->Mod_modWidget->item(0)->flags().testFlag(Qt::ItemIsUserCheckable))
+    if(isModInvalid())
     {
         ui->Mod_allBox->setChecked(false);
         return;
@@ -102,7 +114,7 @@ void MainWindow::on_Mod_allBox_clicked(bool checked)
 
 void MainWindow::on_Mod_highlightedBox_clicked(bool checked)
 {
-    if(ui->Mod_modWidget->count() == 1 && !ui->Mod_modWidget->item(0)->flags().testFlag(Qt::ItemIsUserCheckable))
+    if(isModInvalid())
     {
         ui->Mod_allBox->setChecked(false);
         return;
@@ -112,3 +124,34 @@ void MainWindow::on_Mod_highlightedBox_clicked(bool checked)
         (*it)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 }
 
+
+void MainWindow::on_Mod_modWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    if(isModInvalid())
+        return;
+    system(("explorer /select,\"" + item->text() + "\"").toLocal8Bit().data());
+}
+
+
+void MainWindow::on_Mod_exportButton_clicked()
+{
+    if(isModInvalid())
+        return;
+    QString outputDir = QFileDialog::getExistingDirectory(this, tr("Target directory to copy to"));
+    if(outputDir.isEmpty())
+        return;
+    QString srcPath, srcName;
+    int counter = 0;
+    for(int i = 0; i < ui->Mod_modWidget->count(); i++)
+    {
+        auto tmp = ui->Mod_modWidget->item(i);
+        if(tmp->checkState() != Qt::Checked)
+            continue;
+        srcPath = tmp->text();
+        srcName = srcPath.split('\\').last();
+        qDebug() << srcPath << outputDir + "/" + srcName;
+        if(QFile::copy(srcPath, outputDir + "/" + srcName))
+            counter++;
+    }
+    QMessageBox::information(this, tr("Info"), tr("Copied ") + QString::number(counter) + tr(" file(s)"));
+}
