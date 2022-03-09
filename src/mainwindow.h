@@ -21,7 +21,10 @@ public:
 private slots:
     void on_Proc_updateButton_clicked();
 
+    void on_Proc_filterEdit_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
+    void applyProcFilter();
 };
 #endif // MAINWINDOW_H

@@ -12,9 +12,14 @@ class ProcUtil : public QObject
 public:
     explicit ProcUtil(QObject *parent = nullptr);
 
-    static BOOL GetProcessList();
+    struct ProcInfo
+    {
+        DWORD PID;
+        QString name;
+    };
+
+    static QVector<ProcInfo> GetProcessList();
     static BOOL ListProcessModules(DWORD dwPID);
-    static BOOL ListProcessThreads(DWORD dwOwnerPID);
     static void printError(TCHAR* msg);
 
 signals:

@@ -9,19 +9,18 @@ ProcUtil::ProcUtil(QObject *parent)
 
 }
 
-BOOL ProcUtil::GetProcessList()
+QVector<ProcUtil::ProcInfo> ProcUtil::GetProcessList()
 {
+    QVector<ProcUtil::ProcInfo> result;
     HANDLE hProcessSnap;
-    HANDLE hProcess;
     PROCESSENTRY32 pe32;
-    DWORD dwPriorityClass;
 
     // Take a snapshot of all processes in the system.
     hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if(hProcessSnap == INVALID_HANDLE_VALUE)
     {
         printError(TEXT("CreateToolhelp32Snapshot (of processes)"));
-        return(FALSE);
+        return(result);
     }
 
     // Set the size of the structure before using it.
@@ -33,46 +32,19 @@ BOOL ProcUtil::GetProcessList()
     {
         printError(TEXT("Process32First"));   // show cause of failure
         CloseHandle(hProcessSnap);            // clean the snapshot object
-        return(FALSE);
+        return(result);
     }
 
     // Now walk the snapshot of processes, and
     // display information about each process in turn
     do
     {
-        _tprintf(TEXT("\n\n====================================================="));
-        _tprintf(TEXT("\nPROCESS NAME:  %s"), pe32.szExeFile);
-        _tprintf(TEXT("\n-------------------------------------------------------"));
-
-        // Retrieve the priority class.
-        dwPriorityClass = 0;
-        hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);
-        if(hProcess == NULL)
-            printError(TEXT("OpenProcess"));
-        else
-        {
-            dwPriorityClass = GetPriorityClass(hProcess);
-            if(!dwPriorityClass)
-                printError(TEXT("GetPriorityClass"));
-            CloseHandle(hProcess);
-        }
-
-        _tprintf(TEXT("\n  Process ID        = 0x%08X"), pe32.th32ProcessID);
-        _tprintf(TEXT("\n  Thread count      = %d"),   pe32.cntThreads);
-        _tprintf(TEXT("\n  Parent process ID = 0x%08X"), pe32.th32ParentProcessID);
-        _tprintf(TEXT("\n  Priority base     = %d"), pe32.pcPriClassBase);
-        if(dwPriorityClass)
-            _tprintf(TEXT("\n  Priority class    = %d"), dwPriorityClass);
-
-        // List the modules and threads associated with this process
-        ListProcessModules(pe32.th32ProcessID);
-        ListProcessThreads(pe32.th32ProcessID);
-
+        result.append(ProcInfo{pe32.th32ProcessID, QString::fromWCharArray(pe32.szExeFile)});
     }
     while(Process32Next(hProcessSnap, &pe32));
 
     CloseHandle(hProcessSnap);
-    return(TRUE);
+    return(result);
 }
 
 
@@ -108,56 +80,10 @@ BOOL ProcUtil::ListProcessModules(DWORD dwPID)
         _tprintf(TEXT("\n\n     MODULE NAME:     %s"),   me32.szModule);
         _tprintf(TEXT("\n     Executable     = %s"),     me32.szExePath);
         _tprintf(TEXT("\n     Process ID     = 0x%08X"),         me32.th32ProcessID);
-        _tprintf(TEXT("\n     Ref count (g)  = 0x%04X"),     me32.GlblcntUsage);
-        _tprintf(TEXT("\n     Ref count (p)  = 0x%04X"),     me32.ProccntUsage);
-        _tprintf(TEXT("\n     Base address   = 0x%08X"), (u_int64) me32.modBaseAddr);
-        _tprintf(TEXT("\n     Base size      = %d"),             me32.modBaseSize);
-
     }
     while(Module32Next(hModuleSnap, &me32));
 
     CloseHandle(hModuleSnap);
-    return(TRUE);
-}
-
-BOOL ProcUtil::ListProcessThreads(DWORD dwOwnerPID)
-{
-    HANDLE hThreadSnap = INVALID_HANDLE_VALUE;
-    THREADENTRY32 te32;
-
-    // Take a snapshot of all running threads
-    hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-    if(hThreadSnap == INVALID_HANDLE_VALUE)
-        return(FALSE);
-
-    // Fill in the size of the structure before using it.
-    te32.dwSize = sizeof(THREADENTRY32);
-
-    // Retrieve information about the first thread,
-    // and exit if unsuccessful
-    if(!Thread32First(hThreadSnap, &te32))
-    {
-        printError(TEXT("Thread32First"));   // show cause of failure
-        CloseHandle(hThreadSnap);            // clean the snapshot object
-        return(FALSE);
-    }
-
-    // Now walk the thread list of the system,
-    // and display information about each thread
-    // associated with the specified process
-    do
-    {
-        if(te32.th32OwnerProcessID == dwOwnerPID)
-        {
-            _tprintf(TEXT("\n\n     THREAD ID      = 0x%08X"), te32.th32ThreadID);
-            _tprintf(TEXT("\n     Base priority  = %d"), te32.tpBasePri);
-            _tprintf(TEXT("\n     Delta priority = %d"), te32.tpDeltaPri);
-            _tprintf(TEXT("\n"));
-        }
-    }
-    while(Thread32Next(hThreadSnap, &te32));
-
-    CloseHandle(hThreadSnap);
     return(TRUE);
 }
 
