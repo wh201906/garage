@@ -60,6 +60,9 @@
       </item>
       <item>
        <widget class="QTableWidget" name="Proc_procWidget">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -94,7 +97,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="Mod_numLabel">
           <property name="text">
            <string>Module:</string>
           </property>
@@ -118,9 +121,6 @@
           <property name="text">
            <string>All</string>
           </property>
-          <property name="tristate">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
         <item>
@@ -128,22 +128,26 @@
           <property name="text">
            <string>Highlighted</string>
           </property>
-          <property name="tristate">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="Mod_exportButton">
           <property name="text">
-           <string>Export</string>
+           <string>Export Checked</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QListWidget" name="Mod_modWidget"/>
+       <widget class="QListWidget" name="Mod_modWidget">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

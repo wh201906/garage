@@ -23,8 +23,15 @@ private slots:
 
     void on_Proc_filterEdit_textEdited(const QString &arg1);
 
+    void on_Proc_procWidget_cellClicked(int row, int column);
+
+    void on_Mod_allBox_clicked(bool checked);
+
+    void on_Mod_highlightedBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     void applyProcFilter();
+    void updateModuleList(quint32 PID);
 };
 #endif // MAINWINDOW_H

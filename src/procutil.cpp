@@ -48,8 +48,9 @@ QVector<ProcUtil::ProcInfo> ProcUtil::GetProcessList()
 }
 
 
-BOOL ProcUtil::ListProcessModules(DWORD dwPID)
+QVector<QString> ProcUtil::ListProcessModules(DWORD dwPID)
 {
+    QVector<QString> result;
     HANDLE hModuleSnap = INVALID_HANDLE_VALUE;
     MODULEENTRY32 me32;
 
@@ -58,7 +59,7 @@ BOOL ProcUtil::ListProcessModules(DWORD dwPID)
     if(hModuleSnap == INVALID_HANDLE_VALUE)
     {
         printError(TEXT("CreateToolhelp32Snapshot (of modules)"));
-        return(FALSE);
+        return(result);
     }
 
     // Set the size of the structure before using it.
@@ -70,21 +71,19 @@ BOOL ProcUtil::ListProcessModules(DWORD dwPID)
     {
         printError(TEXT("Module32First"));    // show cause of failure
         CloseHandle(hModuleSnap);             // clean the snapshot object
-        return(FALSE);
+        return(result);
     }
 
     // Now walk the module list of the process,
     // and display information about each module
     do
     {
-        _tprintf(TEXT("\n\n     MODULE NAME:     %s"),   me32.szModule);
-        _tprintf(TEXT("\n     Executable     = %s"),     me32.szExePath);
-        _tprintf(TEXT("\n     Process ID     = 0x%08X"),         me32.th32ProcessID);
+        result.append(QString::fromWCharArray(me32.szExePath));
     }
     while(Module32Next(hModuleSnap, &me32));
 
     CloseHandle(hModuleSnap);
-    return(TRUE);
+    return(result);
 }
 
 void ProcUtil::printError(TCHAR* msg)

@@ -17,7 +17,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_Proc_updateButton_clicked()
 {
-    QVector<ProcUtil::ProcInfo> procList = ProcUtil::GetProcessList();
+    auto procList = ProcUtil::GetProcessList();
     ui->Proc_procWidget->clearContents();
     ui->Proc_procWidget->setRowCount(procList.size());
     for(int i = 0; i < procList.size(); i++)
@@ -46,9 +46,69 @@ void MainWindow::applyProcFilter()
         }
     }
 }
+
 void MainWindow::on_Proc_filterEdit_textEdited(const QString &arg1)
 {
     Q_UNUSED(arg1)
     applyProcFilter();
+}
+
+
+void MainWindow::on_Proc_procWidget_cellClicked(int row, int column)
+{
+    Q_UNUSED(column)
+    updateModuleList(ui->Proc_procWidget->item(row, 0)->text().toUInt());
+}
+
+void MainWindow::updateModuleList(quint32 PID)
+{
+    auto modList = ProcUtil::ListProcessModules(PID);
+    ui->Mod_modWidget->clear();
+
+    if(modList.size() == 0)
+    {
+        ui->Mod_numLabel->setText(tr("Module:"));
+        ui->Mod_modWidget->setSelectionMode(QListWidget::NoSelection);
+        QListWidgetItem* tmp = new QListWidgetItem(tr("<Cannot load modules>"));
+        tmp->setFlags(tmp->flags().setFlag(Qt::ItemIsUserCheckable, false));
+        ui->Mod_modWidget->addItem(tmp);
+    }
+    else
+    {
+        ui->Mod_numLabel->setText(tr("Module:") + QString::number(modList.size()));
+        ui->Mod_modWidget->setSelectionMode(QListWidget::ExtendedSelection);
+        for(int i = 0; i < modList.size(); i++)
+        {
+            QListWidgetItem* tmp = new QListWidgetItem(modList[i]);
+            tmp->setFlags(tmp->flags() | Qt::ItemIsUserCheckable);
+            tmp->setCheckState(Qt::Unchecked);
+            ui->Mod_modWidget->addItem(tmp);
+        }
+    }
+
+}
+
+void MainWindow::on_Mod_allBox_clicked(bool checked)
+{
+    if(ui->Mod_modWidget->count() == 1 && !ui->Mod_modWidget->item(0)->flags().testFlag(Qt::ItemIsUserCheckable))
+    {
+        ui->Mod_allBox->setChecked(false);
+        return;
+    }
+    for(int i = 0; i < ui->Mod_modWidget->count(); i++)
+        ui->Mod_modWidget->item(i)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+}
+
+
+void MainWindow::on_Mod_highlightedBox_clicked(bool checked)
+{
+    if(ui->Mod_modWidget->count() == 1 && !ui->Mod_modWidget->item(0)->flags().testFlag(Qt::ItemIsUserCheckable))
+    {
+        ui->Mod_allBox->setChecked(false);
+        return;
+    }
+    auto highlighted = ui->Mod_modWidget->selectedItems();
+    for(auto it = highlighted.begin(); it != highlighted.end(); ++it)
+        (*it)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 }
 

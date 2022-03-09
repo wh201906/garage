@@ -14,12 +14,12 @@ public:
 
     struct ProcInfo
     {
-        DWORD PID;
+        quint32 PID;
         QString name;
     };
 
     static QVector<ProcInfo> GetProcessList();
-    static BOOL ListProcessModules(DWORD dwPID);
+    static QVector<QString> ListProcessModules(DWORD dwPID);
     static void printError(TCHAR* msg);
 
 signals:
