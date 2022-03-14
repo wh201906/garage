@@ -54,6 +54,25 @@ void MainWindow::applyProcFilter()
     }
 }
 
+void MainWindow::applyModFilter()
+{
+    const QString filter = ui->Mod_filterEdit->text();
+    if(filter.isEmpty())
+    {
+        for(int i = 0; i < ui->Mod_modWidget->count(); i++)
+        {
+            ui->Mod_modWidget->setRowHidden(i, false);
+        }
+    }
+    else
+    {
+        for(int i = 0; i < ui->Mod_modWidget->count(); i++)
+        {
+            ui->Mod_modWidget->setRowHidden(i, !ui->Mod_modWidget->item(i)->text().contains(filter, Qt::CaseInsensitive));
+        }
+    }
+}
+
 void MainWindow::on_Proc_filterEdit_textEdited(const QString &arg1)
 {
     Q_UNUSED(arg1)
@@ -108,7 +127,10 @@ void MainWindow::on_Mod_allBox_clicked(bool checked)
         return;
     }
     for(int i = 0; i < ui->Mod_modWidget->count(); i++)
-        ui->Mod_modWidget->item(i)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    {
+        if(!ui->Mod_modWidget->item(i)->isHidden())
+            ui->Mod_modWidget->item(i)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    }
 }
 
 
@@ -121,7 +143,10 @@ void MainWindow::on_Mod_highlightedBox_clicked(bool checked)
     }
     auto highlighted = ui->Mod_modWidget->selectedItems();
     for(auto it = highlighted.begin(); it != highlighted.end(); ++it)
-        (*it)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    {
+        if(!(*it)->isHidden())
+            (*it)->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    }
 }
 
 
@@ -145,7 +170,7 @@ void MainWindow::on_Mod_exportButton_clicked()
     for(int i = 0; i < ui->Mod_modWidget->count(); i++)
     {
         auto tmp = ui->Mod_modWidget->item(i);
-        if(tmp->checkState() != Qt::Checked)
+        if(tmp->isHidden() || tmp->checkState() != Qt::Checked)
             continue;
         srcPath = tmp->text();
         srcName = srcPath.split('\\').last();
@@ -155,3 +180,11 @@ void MainWindow::on_Mod_exportButton_clicked()
     }
     QMessageBox::information(this, tr("Info"), tr("Copied ") + QString::number(counter) + tr(" file(s)"));
 }
+
+void MainWindow::on_Mod_filterEdit_textEdited(const QString &arg1)
+{
+    Q_UNUSED(arg1)
+    applyModFilter();
+}
+
+

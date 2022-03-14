@@ -34,9 +34,12 @@ private slots:
 
     void on_Mod_exportButton_clicked();
 
+    void on_Mod_filterEdit_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     void applyProcFilter();
+    void applyModFilter();
     void updateModuleList(quint32 PID);
     bool isModInvalid();
 };
