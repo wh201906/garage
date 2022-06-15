@@ -23,7 +23,8 @@ while True:
     if fullmatch("keyboard|key|k", userInput, IGNORECASE):
         print("Keyboard state:")
         # find it in Device Manager
-        devId = "ACPI\\HPQ8002\\4&37026D19&0"
+        # & -> ^&
+        devId = "ACPI\\HPQ8002\\4^&37026D19^&0"
         break
     elif fullmatch("trackpad|track|t", userInput, IGNORECASE):
         print("Trackpad state:")
