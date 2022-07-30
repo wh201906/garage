@@ -14,6 +14,9 @@ www.baidu.com###tab_news_1
 ! Bilibili recommendations
 ! main page
 www.bilibili.com##.bili-layout
+! search
+www.bilibili.com##.trending
+m.bilibili.com##.m-search-hot
 ! mobile
 m.bilibili.com##.video-list
 ! video player page
