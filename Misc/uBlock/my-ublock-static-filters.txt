@@ -1,0 +1,27 @@
+! Static filter rules for uBlock
+
+! Baidu hot news
+! main page(signed in)
+www.baidu.com##.c-wrapper-l.c-wrapper.clearfix.main
+! main page(not signed in)
+www.baidu.com###hotsearch-content-wrapper
+! search result page
+www.baidu.com##.FYB.RD
+www.baidu.com##.FYB_RD
+! mobile mode
+www.baidu.com###tab_news_1
+
+! Bilibili recommendations
+! main page
+www.bilibili.com##.bili-layout
+! mobile
+m.bilibili.com##.video-list
+! video player page
+www.bilibili.com##.rec-list
+www.bilibili.com##.next-play
+www.bilibili.com##.bilibili-player-ending-panel-box-videos
+www.bilibili.com##.part-undefined.report-scroll-module.report-wrap-module.pop-live-small-mode
+
+! Bilibili AD
+www.bilibili.com##.is-in-large-ab.small-mode.right-container > .ad-floor-exp.ad-report
+www.bilibili.com##.video-card-ad-small.ad-report
