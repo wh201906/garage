@@ -8,12 +8,14 @@ www.baidu.com###hotsearch-content-wrapper
 ! search result page
 www.baidu.com##.FYB.RD
 www.baidu.com##.FYB_RD
+zhidao.baidu.com###right-billboard
 ! mobile mode
 www.baidu.com###tab_news_1
 
 ! Bilibili recommendations
 ! main page
 www.bilibili.com##.bili-layout
+www.bilibili.com##.feed2
 ! search
 www.bilibili.com##.trending
 m.bilibili.com##.m-search-hot
