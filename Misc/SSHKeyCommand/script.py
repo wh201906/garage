@@ -1,12 +1,16 @@
 import sys
 from os.path import exists, abspath, dirname, join, expanduser, sep
-from os import system, environ, kill
+from os import system, environ, kill, remove
 from signal import SIGTERM
 from subprocess import check_output, CalledProcessError
 from psutil import process_iter
+from ast import literal_eval
+from re import fullmatch, IGNORECASE
 
 # Usage:
 # python script.py <private key file 1> <private key file 2> ...
+# Or:
+# python script.py # (requires last generated script as history)
 # The public key file and the private key file should be in the same directory
 # the private key file should have no filename extension
 # the public key file should have the same filename as the private key's, with ".pub" suffix
@@ -32,9 +36,23 @@ def getProcList(name: str):
 if __name__ == '__main__':
 
     # get valid key path
+    tmp = []
+    useHistory = False
+    if len(sys.argv) <= 1 and exists(scriptPath):
+        try:
+            with open(scriptPath, "r") as f:
+                f.readline()
+                tmp = literal_eval(f.readline()[2:])
+                print("Using history from previous generated script\n")
+                useHistory = True
+        except Exception:
+            pass
+    if not useHistory:
+        tmp = sys.argv[1:]
+
     print("Checking key files", flush=True)
     pathArray = []
-    for path in sys.argv[1:]:
+    for path in tmp:
         absolutePath = abspath(expanduser(path))
         if not exists(absolutePath):
             print(absolutePath, "not exists.", flush=True)
@@ -123,7 +141,7 @@ if __name__ == '__main__':
     print("Use \"exit\" plus Enter to exit.\n", flush=True)
     print("When signing with ssh,")
     print("please type the id(0,1,2,...) of the key you want to use,")
-    print("Then press Enter to confirm.", flush=True)
+    print("then press Enter to confirm.", flush=True)
     try:
         system("bash")
     except KeyboardInterrupt:
@@ -135,6 +153,7 @@ if __name__ == '__main__':
         print("Killing", v, "pid:", k, flush=True)
         kill(k, SIGTERM)
     system("rm -f /tmp/.git_signing_key_tmp*")
+    system("rm -f " + environ["SSH_AUTH_SOCK"])
 
     # restore git config
     if oldConfigValid:
@@ -144,3 +163,9 @@ if __name__ == '__main__':
         else:
             system("git config --global gpg.ssh.defaultKeyCommand " +
                    oldConfig)
+
+    # Delete generated script
+    tmp = input("Deleted generated script? [Y/n]")
+    if not fullmatch("n|no", tmp, IGNORECASE):
+        remove(scriptPath)
+        print("Deleted", flush=True)
