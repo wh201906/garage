@@ -3,7 +3,6 @@ from os.path import exists, abspath, dirname, join, expanduser, sep
 from os import system, environ, kill, remove
 from signal import SIGTERM
 from subprocess import check_output, CalledProcessError
-from psutil import process_iter
 from ast import literal_eval
 from re import fullmatch, IGNORECASE
 
@@ -22,16 +21,6 @@ echo $pubkey
 '''
 
 scriptPath = join(dirname(abspath(__file__)), "gen.sh")
-
-
-def getProcList(name: str):
-    result = {}
-    for proc in process_iter(['pid', 'name']):
-        procName = proc.info['name']
-        if len(name) == 0 or procName.rsplit(".", 2)[0] == name:
-            result[proc.info['pid']] = procName
-    return result
-
 
 if __name__ == '__main__':
 
@@ -109,12 +98,7 @@ if __name__ == '__main__':
 
     # start ssh-agent
     print("Starting ssh-agent", flush=True)
-    oldProcList = getProcList("ssh-agent")
     output = check_output("ssh-agent", shell=True).decode()
-    procList = {
-        k: v
-        for k, v in getProcList("ssh-agent").items() if k not in oldProcList
-    }
 
     outputList = sum([line.split(";") for line in output.splitlines()], [])
     outputList = [s.strip() for s in outputList if "=" in s]
@@ -123,12 +107,9 @@ if __name__ == '__main__':
         environ[element[0]] = element[1]
         print(item)
 
-    print("New ssh-agent:")
-    for k, v in procList.items():
-        print(v, "pid:", k)
-    print("All of them will be terminated after exiting the new bash.",
-          flush=True)
-    print("")
+    print(
+        "The pid of actual ssh-agent might be different from $SSH_AGENT_PID\n",
+    )
 
     # add private key to ssh-agent
     print("Adding private key", flush=True)
@@ -149,9 +130,7 @@ if __name__ == '__main__':
 
     # clean up
     print("You have exited the shell with ssh-agent.", flush=True)
-    for k, v in procList.items():
-        print("Killing", v, "pid:", k, flush=True)
-        kill(k, SIGTERM)
+    system("ssh-agent -k")
     system("rm -f /tmp/.git_signing_key_tmp*")
     system("rm -f " + environ["SSH_AUTH_SOCK"])
 
