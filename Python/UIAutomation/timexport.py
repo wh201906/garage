@@ -6,6 +6,7 @@ from datetime import datetime
 
 # tested on TIM 3.4.1(22056)
 
+
 def goToParent(control, n: int):
     for _ in range(n):
         control = control.GetParentControl()
@@ -91,25 +92,35 @@ class TIMCloudTable:
         )
 
     def getItemUpdateTime(self, item):
-        return (
-            item.PaneControl(searchDepth=1, foundIndex=2)
-            .GetLegacyIAccessiblePattern()
-            .Description
-        )
+        anchor = item.PaneControl(searchDepth=1, foundIndex=2)
+        result = anchor.GetLegacyIAccessiblePattern().Description
+        if len(result) == 0:  # 下载失败？
+            result = anchor.TextControl(searchDepth=1).Name
+        return result
 
     def getItemSource(self, item):
-        return (
-            item.PaneControl(searchDepth=1, foundIndex=3)
-            .GetLegacyIAccessiblePattern()
-            .Description
-        )
+        result = ""
+        try:
+            result = (
+                item.PaneControl(searchDepth=1, foundIndex=3)
+                .GetLegacyIAccessiblePattern()
+                .Description
+            )
+        except Exception as e:
+            result = ""  # 下载失败
+        return result
 
     def getItemSize(self, item):
-        return (
-            item.PaneControl(searchDepth=1, foundIndex=4)
-            .GetLegacyIAccessiblePattern()
-            .Description
-        )
+        result = ""
+        try:
+            result = (
+                item.PaneControl(searchDepth=1, foundIndex=4)
+                .GetLegacyIAccessiblePattern()
+                .Description
+            )
+        except Exception as e:
+            result = ""  # 下载失败
+        return result
 
 
 if __name__ == "__main__":
@@ -133,13 +144,18 @@ if __name__ == "__main__":
             print(datetime.now(), "page:", i + 1)
             all = ""
             for item in table.getItemList():
-                data = table.getItemFilename(item)
-                data += "###"
-                data += (
-                    table.getItemUpdateTime(item)
-                    + table.getItemSource(item)
-                    + table.getItemSize(item)
-                )
+                try:
+                    data = table.getItemFilename(item)
+                    data += "###"
+                    updateTime = table.getItemUpdateTime(item)
+                    data += updateTime
+                    if updateTime != "下载失败":
+                        data += table.getItemSource(item) + table.getItemSize(item)
+                except Exception as e:
+                    print("error: unexpected item")
+                    print(repr(e))
+                    table.scroll(10)
+                    continue
                 # print(data)
                 all += data + "\n"
 
