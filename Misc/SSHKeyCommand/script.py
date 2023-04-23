@@ -23,9 +23,16 @@ echo $pubkey
 scriptPath = join(dirname(abspath(__file__)), "gen.sh")
 
 if __name__ == '__main__':
+    tmp = []
+
+    # detect if ssh-agent is running
+    if "SSH_AGENT_PID" in environ.keys():
+        tmp = input("ssh-agent is running. Continue? [y/N]")
+        if not fullmatch("y|yes", tmp, IGNORECASE):
+            print("Exited.", flush=True)
+            sys.exit(0)
 
     # get valid key path
-    tmp = []
     useHistory = False
     if len(sys.argv) <= 1 and exists(scriptPath):
         try:
