@@ -14,15 +14,15 @@ from re import fullmatch, IGNORECASE
 # the private key file should have no filename extension
 # the public key file should have the same filename as the private key's, with ".pub" suffix
 
-scriptBody = '''
+scriptBody = """
 read idx
 pubkey="key::$(head -1 ${array[$idx]}.pub)"
 echo $pubkey
-'''
+"""
 
 scriptPath = join(dirname(abspath(__file__)), "gen.sh")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tmp = []
 
     # detect if ssh-agent is running
@@ -71,22 +71,23 @@ if __name__ == '__main__':
     oldConfigValid = False
     try:
         oldConfig = check_output(
-            "git config --global gpg.ssh.defaultKeyCommand",
-            shell=True).decode()
+            "git config --global gpg.ssh.defaultKeyCommand", shell=True
+        ).decode()
         oldConfigValid = True
     except CalledProcessError:  # this happens if the config is not set.
         oldConfigValid = True
 
     # set git config
-    system("git config --global gpg.ssh.defaultKeyCommand " +
-           scriptPath.replace(sep, "/"))
+    system(
+        "git config --global gpg.ssh.defaultKeyCommand " + scriptPath.replace(sep, "/")
+    )
 
     # generate script
     print("Generating shell script", flush=True)
     arrayStr = "declare -a array=("
     for path in pathArray[:-1]:
-        arrayStr += "\"" + path + "\" "
-    arrayStr += "\"" + pathArray[-1] + "\")\n"
+        arrayStr += '"' + path + '" '
+    arrayStr += '"' + pathArray[-1] + '")\n'
 
     try:
         with open(scriptPath, "w") as f:
@@ -121,12 +122,12 @@ if __name__ == '__main__':
     # add private key to ssh-agent
     print("Adding private key", flush=True)
     for path in pathArray:
-        system("ssh-add \"" + path + "\"")
+        system('ssh-add "' + path + '"')
     print("")
 
     # run a new shell with ssh-agent configured
     print("You will enter a new shell with ssh-agent.")
-    print("Use \"exit\" plus Enter to exit.\n", flush=True)
+    print('Use "exit" plus Enter to exit.\n', flush=True)
     print("When signing with ssh,")
     print("please type the id(0,1,2,...) of the key you want to use,")
     print("then press Enter to confirm.", flush=True)
@@ -147,8 +148,7 @@ if __name__ == '__main__':
         if len(oldConfig) == 0:
             system("git config --global --unset gpg.ssh.defaultKeyCommand ")
         else:
-            system("git config --global gpg.ssh.defaultKeyCommand " +
-                   oldConfig)
+            system("git config --global gpg.ssh.defaultKeyCommand " + oldConfig)
 
     # Delete generated script
     tmp = input("Deleted generated script? [Y/n]")
