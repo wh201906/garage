@@ -9,21 +9,21 @@ class DS2202A(VisaDev):
         self.inst.timeout += 2000
 
     def wave_getScreenData(self, ch):
-        device.write(":WAV:SOUR CHAN" + str(ch))
-        device.write(":WAV:MODE NORM")
-        device.write(":WAV:FORM BYTE")
-        device.write(":WAV:RES")
-        device.write(":WAV:BEG")
-        device.write(":WAV:DATA?")
-        len = device.read_bytes(11)
-        len = int(len[-9:])
-        return device.read_bytes(len)
+        self.write(":WAV:SOUR CHAN" + str(ch))
+        self.write(":WAV:MODE NORM")
+        self.write(":WAV:FORM BYTE")
+        self.write(":WAV:RES")
+        self.write(":WAV:BEG")
+        self.write(":WAV:DATA?")
+        dataLen = self.read_bytes(11)
+        dataLen = int(dataLen[-9:])
+        return self.read_bytes(dataLen)
 
     def ch_setScale(self, ch, scale):
-        device.write(":CHAN" + str(ch) + ":SCAL " + str(scale))
+        self.write(":CHAN" + str(ch) + ":SCAL " + str(scale))
 
     def time_setScale(self, scale):
-        device.write(":TIM:SCAL " + str(scale))
+        self.write(":TIM:SCAL " + str(scale))
 
     def measure_Vpp(self):
         return float(self.query(":MEAS:VPP? CHAN1"))

@@ -19,10 +19,10 @@ class DSA815(VisaDev):
             byteorder = ">"
         self.write(":FORM REAL")
         self.write(":TRAC? TRACE1")
-        len = self.read_bytes(11)
-        len = int(len[-9:])
-        data = self.read_bytes(len)
-        fmt = byteorder + "f" * (len // 4)
+        datLen = self.read_bytes(11)
+        datLen = int(datLen[-9:])
+        data = self.read_bytes(datLen)
+        fmt = byteorder + "f" * (datLen // 4)
         return unpack(fmt, data)
 
 

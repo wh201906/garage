@@ -9,14 +9,14 @@ class DG822(VisaDev):
         self.name = "DG822"
 
     def getFreq(self, ch=1):
-        return float(device.query(':SOUR' + str(ch) + ':FREQ?'))
+        return float(self.query(':SOUR' + str(ch) + ':FREQ?'))
 
     # "*OPC" doesn't work as expected
     # "*OPC?" will work
     def setFreq(self, ch=1, freq=1000, waitFinished=True):
-        device.write(':SOUR' + str(ch) + ':FREQ ' + str(freq))
+        self.write(':SOUR' + str(ch) + ':FREQ ' + str(freq))
         if waitFinished:
-            return device.query("*OPC?")
+            return self.query("*OPC?")
 
     def setFreq_check(self, ch=1, freq=1000):
         self.setFreq(ch, freq)
