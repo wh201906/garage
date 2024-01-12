@@ -94,6 +94,7 @@
     }
 
     function ZCalc(id) {
+        console.log(id);
         let tmp = 0.0;
         fHz = document.getElementById("Z_fHz").value;
         Rohm = document.getElementById("Z_Rohm").value;
@@ -115,6 +116,36 @@
             CpF = document.getElementById("Z_CpF").value;
             document.getElementById("Z_XCohm").value = Number(1e12 / 2 / Math.PI / fHz / CpF).toFixed(12);
         }
+    }
+
+    function LenConv(id) {
+        console.log(id);
+        let um = 0.0, mil = 0.0;
+        if (id == 'Len_um') {
+            um = document.getElementById(id).value;
+            mil = um / 25.4;
+        }
+        else if (id == 'Len_mm') {
+            um = document.getElementById(id).value * 1e3;
+            mil = um / 25.4;
+        }
+        else if (id == 'Len_mil') {
+            mil = document.getElementById(id).value;
+            um = mil * 25.4;
+        }
+        else if (id == 'Len_inch') {
+            mil = document.getElementById(id).value * 1e3;
+            um = mil * 25.4;
+        }
+        console.log(um, mil);
+        if (id != "Len_um")
+            document.getElementById("Len_um").value = Number(um / 1).toFixed(12);
+        if (id != "Len_mm")
+            document.getElementById("Len_mm").value = Number(um / 1e3).toFixed(12);
+        if (id != "Len_mil")
+            document.getElementById("Len_mil").value = Number(mil / 1).toFixed(12);
+        if (id != "Len_inch")
+            document.getElementById("Len_inch").value = Number(mil / 1e3).toFixed(12);
     }
 </script>
 
@@ -218,6 +249,28 @@
     </table>
     <p>1H=1e6uH 1mH=1e3uH 1nH=1e-3uH</p>
     <p>1mF=1e9pF 1uF=1e6pF 1nF=1e3pF</p>
+    </br>
+    <table border="1">
+        <tr align="center">
+            <td colspan="4">Length converter</td>
+        </tr>
+        <tr align="center">
+            <td>um</td>
+            <td>mm</td>
+        </tr>
+        <tr>
+            <td><input id="Len_um" oninput="LenConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Len_mm" oninput="LenConv(this.id)" placeholder="Input there..." size="15"></td>
+        </tr>
+        <tr align="center">
+            <td>mil</td>
+            <td>inch</td>
+        </tr>
+        <tr>
+            <td><input id="Len_mil" oninput="LenConv(this.id)" placeholder="Input there..." size="15"></td>
+            <td><input id="Len_inch" oninput="LenConv(this.id)" placeholder="Input there..." size="15"></td>
+        </tr>
+    </table>
 </body>
 
 </html>
